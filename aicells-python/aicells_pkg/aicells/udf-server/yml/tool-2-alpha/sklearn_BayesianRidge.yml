@@ -1,0 +1,133 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Based on Scikit-learn's source (https://github.com/scikit-learn/scikit-learn)
+# Scikit-learn has new BSD license, Copyright (c) 2007–2020 The scikit-learn developers.
+#
+
+description: Bayesian ridge regression.
+"model":
+  "configfileDate": |-
+    2020-02-27
+  "modelClass": |-
+    <class 'sklearn.linear_model._bayes.BayesianRidge'>
+  "modelName": |-
+    BayesianRidge
+"parameters":
+  - "parameterName": n_iter
+    "default": 300
+    "type": [integer]
+    "description": |-
+      Maximum number of iterations. Should be greater than or equal to 1.
+    "longDescription": |-
+      Maximum number of iterations. Should be greater than or equal to 1.
+  - "parameterName": tol
+    "default": 0.001
+    "type": [float]
+    "description": |-
+      Stop the algorithm if w has converged.
+    "longDescription": |-
+      Stop the algorithm if w has converged.
+  - "parameterName": alpha_1
+    "default": 1.0e-06
+    "type": [float]
+    "description": |-
+      Hyper-parameter : shape parameter for the Gamma distribution prior over the alpha parameter.
+    "longDescription": |-
+      Hyper-parameter : shape parameter for the Gamma distribution prior over the alpha parameter.
+  - "parameterName": alpha_2
+    "default": 1.0e-06
+    "type": [float]
+    "description": |-
+      Hyper-parameter : inverse scale parameter (rate parameter) for the Gamma distribution prior over the alpha parameter.
+    "longDescription": |-
+      Hyper-parameter : inverse scale parameter (rate parameter) for the Gamma distribution prior over the alpha parameter.
+  - "parameterName": lambda_1
+    "default": 1.0e-06
+    "type": [float]
+    "description": |-
+      Hyper-parameter : shape parameter for the Gamma distribution prior over the lambda parameter.
+    "longDescription": |-
+      Hyper-parameter : shape parameter for the Gamma distribution prior over the lambda parameter.
+  - "parameterName": lambda_2
+    "default": 1.0e-06
+    "type": [float]
+    "description": |-
+      Hyper-parameter : inverse scale parameter (rate parameter) for the Gamma distribution prior over the lambda parameter.
+    "longDescription": |-
+      Hyper-parameter : inverse scale parameter (rate parameter) for the Gamma distribution prior over the lambda parameter.
+  - "parameterName": alpha_init
+    "default": Null
+    "type": [float, "Null"]
+    "description": |-
+      Initial value for alpha (precision of the noise).
+    "longDescription": |-
+      Initial value for alpha (precision of the noise).
+      If not set, alpha_init is 1/Var(y).
+  - "parameterName": lambda_init
+    "default": Null
+    "type": [float, "Null"]
+    "description": |-
+      Initial value for lambda (precision of the weights).
+    "longDescription": |-
+      Initial value for lambda (precision of the weights).
+      If not set, lambda_init is 1.
+  - "parameterName": compute_score
+    "default": False
+    "type": [boolean]
+    "description": |-
+      If True, compute the log marginal likelihood at each iteration of the optimization.
+    "longDescription": |-
+      If True, compute the log marginal likelihood at each iteration of the optimization.
+  - "parameterName": fit_intercept
+    "default": True
+    "type": [boolean]
+    "description": |-
+      Whether to calculate the intercept for this model.
+    "longDescription": |-
+      Whether to calculate the intercept for this model.
+      The intercept is not treated as a probabilistic parameter
+      and thus has no associated variance. If set
+      to False, no intercept will be used in calculations
+      (i.e. data is expected to be centered).
+  - "parameterName": normalize
+    "default": False
+    "type": [boolean]
+    "description": |-
+      This parameter is ignored when ``fit_intercept`` is set to False.
+    "longDescription": |-
+      This parameter is ignored when ``fit_intercept`` is set to False.
+      If True, the regressors X will be normalized before regression by
+      subtracting the mean and dividing by the l2-norm.
+      If you wish to standardize, please use
+      :class:`sklearn.preprocessing.StandardScaler` before calling ``fit``
+      on an estimator with ``normalize=False``.
+#- "parameterName": |-
+#    copy_X
+#   "default": |-
+#    True
+#   "type": |-
+#    bool
+#   "description": |-
+#    If True, X will be copied; else, it may be overwritten.
+#   "longDescription": |-
+#    If True, X will be copied; else, it may be overwritten.
+  - "parameterName": verbose
+    "default": False
+    "type": [boolean]
+    "description": |-
+      Verbose mode when fitting the model.
+    "longDescription": |-
+      Verbose mode when fitting the model.
+

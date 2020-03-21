@@ -1,0 +1,133 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Based on Scikit-learn's source (https://github.com/scikit-learn/scikit-learn)
+# Scikit-learn has new BSD license, Copyright (c) 2007–2020 The scikit-learn developers.
+#
+
+"model":
+  "configfileDate": |-
+    2020-02-27
+  "modelClass": |-
+    <class 'sklearn.linear_model._ridge.Ridge'>
+  "modelName": |-
+    Ridge
+"parameters":
+  - "parameterName": alpha
+    "default": 1
+    "type": [float]
+    "description": Regularization strength; must be a positive float.
+    "longDescription": |-
+      Regularization strength; must be a positive float. Regularization
+      improves the conditioning of the problem and reduces the variance of
+      the estimates. Larger values specify stronger regularization.
+      Alpha corresponds to ``C^-1`` in other linear models such as
+      LogisticRegression or LinearSVC. If an array is passed, penalties are
+      assumed to be specific to the targets. Hence they must correspond in
+      number.
+  - "parameterName": fit_intercept
+    "default": True
+    "type": [boolean]
+    "description": |-
+      Whether to calculate the intercept for this model.
+    "longDescription": |-
+      Whether to calculate the intercept for this model. If set
+      to false, no intercept will be used in calculations
+      (i.e. data is expected to be centered).
+  - "parameterName": normalize
+    "default": False
+    "type": [boolean]
+    "description": |-
+      This parameter is ignored when ``fit_intercept`` is set to False.
+    "longDescription": |-
+      This parameter is ignored when ``fit_intercept`` is set to False.
+      If True, the regressors X will be normalized before regression by
+      subtracting the mean and dividing by the l2-norm.
+      If you wish to standardize, please use
+      :class:`sklearn.preprocessing.StandardScaler` before calling ``fit``
+      on an estimator with ``normalize=False``.
+#- "parameterName": |-
+#    copy_X
+#   "default": |-
+#    True
+#   "type": |-
+#    bool
+#   "description": |-
+#    If True, X will be copied; else, it may be overwritten.
+#   "longDescription": |-
+#    If True, X will be copied; else, it may be overwritten.
+  - "parameterName": max_iter
+    "default": Null
+    "type": [integer]
+    "description": |-
+      Maximum number of iterations for conjugate gradient solver.
+    "longDescription": |-
+      Maximum number of iterations for conjugate gradient solver.
+      For 'sparse_cg' and 'lsqr' solvers, the default value is determined
+      by scipy.sparse.linalg. For 'sag' solver, the default value is 1000.
+  - "parameterName": tol
+    "default": 0.001
+    "type": [float]
+    "description": |-
+      Precision of the solution.
+    "longDescription": |-
+      Precision of the solution.
+  - "parameterName": solver
+    "default": auto
+    "type": [set]
+    setValues: [auto,svd,cholesky,lsqr,sparse_cg,sag,saga]
+    "description": |-
+      Solver to use in the computational routines. 'auto' chooses the solver automatically based on the type of data.
+    "longDescription": |-
+      Solver to use in the computational routines:
+      - 'auto' chooses the solver automatically based on the type of data.
+      - 'svd' uses a Singular Value Decomposition of X to compute the Ridge
+      coefficients. More stable for singular matrices than
+      'cholesky'.
+      - 'cholesky' uses the standard scipy.linalg.solve function to
+      obtain a closed-form solution.
+      - 'sparse_cg' uses the conjugate gradient solver as found in
+      scipy.sparse.linalg.cg. As an iterative algorithm, this solver is
+      more appropriate than 'cholesky' for large-scale data
+      (possibility to set `tol` and `max_iter`).
+      - 'lsqr' uses the dedicated regularized least-squares routine
+      scipy.sparse.linalg.lsqr. It is the fastest and uses an iterative
+      procedure.
+      - 'sag' uses a Stochastic Average Gradient descent, and 'saga' uses
+      its improved, unbiased version named SAGA. Both methods also use an
+      iterative procedure, and are often faster than other solvers when
+      both n_samples and n_features are large. Note that 'sag' and
+      'saga' fast convergence is only guaranteed on features with
+      approximately the same scale. You can preprocess the data with a
+      scaler from sklearn.preprocessing.
+      All last five solvers support both dense and sparse data. However, only
+      'sparse_cg' supports sparse input when `fit_intercept` is True.
+      .. versionadded:: 0.17
+      Stochastic Average Gradient descent solver.
+      .. versionadded:: 0.19
+      SAGA solver.
+  - "parameterName": random_state
+    "default": Null
+    "type": [integer, "Null"]
+    "description": |-
+      The seed of the pseudo random number generator to use when shufflingthe data.
+    "longDescription": |-
+      The seed of the pseudo random number generator to use when shuffling
+      the data.  If int, random_state is the seed used by the random number
+      generator; If RandomState instance, random_state is the random number
+      generator; If None, the random number generator is the RandomState
+      instance used by `np.random`. Used when ``solver`` == 'sag'.
+      .. versionadded:: 0.17
+      *random_state* to support Stochastic Average Gradient.
+

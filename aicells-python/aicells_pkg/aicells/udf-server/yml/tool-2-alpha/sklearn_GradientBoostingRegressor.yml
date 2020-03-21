@@ -1,0 +1,295 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Based on Scikit-learn's source (https://github.com/scikit-learn/scikit-learn)
+# Scikit-learn has new BSD license, Copyright (c) 2007–2020 The scikit-learn developers.
+#
+
+"model":
+   "configfileDate": |-
+    2020-02-27
+   "modelClass": |-
+    <class 'sklearn.ensemble._gb.GradientBoostingRegressor'>
+   "modelName": |-
+    GradientBoostingRegressor
+description: |-
+  Gradient Boosting for regression.
+"parameters":
+  - "parameterName": loss
+    "default": ls
+    "type": [set]
+    setValues: [ls,lad,huber,quantile]
+    "description": regression
+    "longDescription": |-
+      regression. 'lad' (least absolute deviation) is a highly robust
+      variables. 'huber' is a combination of the two. 'quantile'
+      allows quantile regression (use `alpha` to specify the quantile).
+  - "parameterName": learning_rate
+    "default": 0.1
+    "type": [float]
+    "description": |-
+      learning rate shrinks the contribution of each tree by `learning_rate`.
+    "longDescription": |-
+      learning rate shrinks the contribution of each tree by `learning_rate`.
+      There is a trade-off between learning_rate and n_estimators.
+  - "parameterName": n_estimators
+    "default": 100
+    "type": [integer]
+    "description": |-
+      The number of boosting stages to perform.
+    "longDescription": |-
+      The number of boosting stages to perform. Gradient boosting
+      is fairly robust to over-fitting so a large number usually
+      results in better performance.
+  - "parameterName": subsample
+    "default": 1
+    "type": [float]
+    "description": |-
+      The fraction of samples to be used for fitting the individual baselearners.
+    "longDescription": |-
+      The fraction of samples to be used for fitting the individual base
+      learners. If smaller than 1.0 this results in Stochastic Gradient
+      Boosting. `subsample` interacts with the parameter `n_estimators`.
+      Choosing `subsample < 1.0` leads to a reduction of variance
+      and an increase in bias.
+  - "parameterName": criterion
+    "default": friedman_mse
+    "type": [set]
+    setValues: ["friedman_mse", "mse", "mae"]
+    "description": |-
+      The function to measure the quality of a split.
+    "longDescription": |-
+      The function to measure the quality of a split. Supported criteria
+      are "friedman_mse" for the mean squared error with improvement
+      score by Friedman, "mse" for mean squared error, and "mae" for
+      the mean absolute error. The default value of "friedman_mse" is
+      generally the best as it can provide a better approximation in
+      some cases.
+#    .. versionadded:: 0.18
+  - "parameterName": min_samples_split
+    "default": 2
+    "type": [integer,float]
+    "description": |-
+      The minimum number of samples required to split an internal node.
+    "longDescription": |-
+      The minimum number of samples required to split an internal node:
+      - If int, then consider `min_samples_split` as the minimum number.
+      - If float, then `min_samples_split` is a fraction and
+      `ceil(min_samples_split * n_samples)` are the minimum
+      number of samples for each split.
+#    .. versionchanged:: 0.18
+#    Added float values for fractions.
+  - "parameterName": min_samples_leaf
+    "default": 1
+    "type": [integer,float]
+    "description": |-
+      The minimum number of samples required to be at a leaf node.
+    "longDescription": |-
+      The minimum number of samples required to be at a leaf node.
+      A split point at any depth will only be considered if it leaves at
+      least ``min_samples_leaf`` training samples in each of the left and
+      right branches.  This may have the effect of smoothing the model,
+      especially in regression.
+      - If int, then consider `min_samples_leaf` as the minimum number.
+      - If float, then `min_samples_leaf` is a fraction and
+      `ceil(min_samples_leaf * n_samples)` are the minimum
+      number of samples for each node.
+#    .. versionchanged:: 0.18
+#    Added float values for fractions.
+  - "parameterName": min_weight_fraction_leaf
+    "default": 0
+    "type": [float]
+    "description": |-
+      The minimum weighted fraction of the sum total of weights (of all the input samples) required to be at a leaf node.
+    "longDescription": |-
+      The minimum weighted fraction of the sum total of weights (of all
+      the input samples) required to be at a leaf node. Samples have
+      equal weight when sample_weight is not provided.
+  - "parameterName": max_depth
+    "default": 3
+    "type": [integer]
+    "description": |-
+      maximum depth of the individual regression estimators.
+    "longDescription": |-
+      maximum depth of the individual regression estimators. The maximum
+      depth limits the number of nodes in the tree. Tune this parameter
+      for best performance; the best value depends on the interaction
+      of the input variables.
+  - "parameterName": min_impurity_decrease
+    "default": 0
+    "type": [float]
+    "description": |-
+      A node will be split if this split induces a decrease of the impurity greater than or equal to this value.
+    "longDescription": |-
+      A node will be split if this split induces a decrease of the impurity
+      greater than or equal to this value.
+      The weighted impurity decrease equation is the following::
+      N_t / N * (impurity - N_t_R / N_t * right_impurity
+      - N_t_L / N_t * left_impurity)
+      where ``N`` is the total number of samples, ``N_t`` is the number of
+      samples at the current node, ``N_t_L`` is the number of samples in the
+      left child, and ``N_t_R`` is the number of samples in the right child.
+      ``N``, ``N_t``, ``N_t_R`` and ``N_t_L`` all refer to the weighted sum,
+      if ``sample_weight`` is passed.
+#    .. versionadded:: 0.19
+#- "parameterName": min_impurity_split
+#   "default": Null
+#   "type": |-
+#    float,(default=1e-7)
+#   "description": |-
+#    Threshold for early stopping in tree growth.
+#   "longDescription": |-
+#    Threshold for early stopping in tree growth. A node will split
+#    if its impurity is above the threshold, otherwise it is a leaf.
+#    .. deprecated:: 0.19
+#    ``min_impurity_split`` has been deprecated in favor of
+#    ``min_impurity_decrease`` in 0.19. The default value of
+#    ``min_impurity_split`` will change from 1e-7 to 0 in 0.23 and it
+#    will be removed in 0.25. Use ``min_impurity_decrease`` instead.
+  - "parameterName": init
+    "default": Null
+    "type": [set, "Null"]
+    setValues: [zero]
+    "description": |-
+      An estimator object that is used to compute the initial predictions.
+    "longDescription": |-
+      If 'zero', the
+      ``DummyEstimator`` is used, predicting either the average target value
+      (for loss='ls'), or a quantile for the other losses.
+#      An estimator object that is used to compute the initial predictions.
+#      ``init`` has to provide :term:`fit` and :term:`predict`.
+  - "parameterName": random_state
+    "default": Null
+    "type": [integer, "Null"]
+    "description": |-
+      If int, random_state is the seed used by the random number generator;If RandomState instance, random_state is the random number generator;If None, the random number generator is the RandomState instance usedby `np.
+    "longDescription": |-
+      If int, random_state is the seed used by the random number generator;
+      If None, the random number generator is the RandomState instance used
+      by `np.random`.
+#    If RandomState instance, random_state is the random number generator;
+  - "parameterName": max_features
+    "default": Null
+    "type": [integer,float,set,"Null"]
+    setValues: [auto, sqrt, log2]
+    "description": |-
+      The number of features to consider when looking for the best split.
+    "longDescription": |-
+      The number of features to consider when looking for the best split:
+      - If int, then consider `max_features` features at each split.
+      - If float, then `max_features` is a fraction and
+      `int(max_features * n_features)` features are considered at each
+      split.
+      - If "auto", then `max_features=n_features`.
+      - If "sqrt", then `max_features=sqrt(n_features)`.
+      - If "log2", then `max_features=log2(n_features)`.
+      - If None, then `max_features=n_features`.
+      Choosing `max_features < n_features` leads to a reduction of variance
+      and an increase in bias.
+      Note: the search for a split does not stop until at least one
+      valid partition of the node samples is found, even if it requires to
+      effectively inspect more than ``max_features`` features.
+  - "parameterName": alpha
+    "default": 0.9
+    "type": [float]
+    "description": |-
+      The alpha-quantile of the huber loss function and the quantile.
+    "longDescription": |-
+      The alpha-quantile of the huber loss function and the quantile
+#  - "parameterName": verbose
+#    "default": 0
+#    "type": [integer]
+#    "description": |-
+#      Enable verbose output.
+#    "longDescription": |-
+#      Enable verbose output. If 1 then it prints progress and performance
+#      once in a while (the more trees the lower the frequency). If greater
+#      than 1 then it prints progress and performance for every tree.
+  - "parameterName": max_leaf_nodes
+    "default": Null
+    "type": [integer, "Null"]
+    "description": |-
+       Grow trees with ``max_leaf_nodes`` in best-first fashion.
+    "longDescription": |-
+       Grow trees with ``max_leaf_nodes`` in best-first fashion.
+       Best nodes are defined as relative reduction in impurity.
+       If None then unlimited number of leaf nodes.
+#  - "parameterName": warm_start
+#   "default": |-
+#    False
+#   "type": |-
+#    bool
+#   "description": |-
+#    When set to ``True``, reuse the solution of the previous call to fitand add more estimators to the ensemble, otherwise, just erase theprevious solution.
+#   "longDescription": |-
+#    When set to ``True``, reuse the solution of the previous call to fit
+#    and add more estimators to the ensemble, otherwise, just erase the
+#    previous solution. See :term:`the Glossary <warm_start>`.
+#- "parameterName": |-
+#    presort
+#   "default": |-
+#    deprecated
+#   "type": |-
+#    deprecated
+#   "description": |-
+#    This parameter is deprecated and will be removed in v0.
+#   "longDescription": |-
+#    This parameter is deprecated and will be removed in v0.24.
+#    .. deprecated :: 0.22
+  - "parameterName": validation_fraction
+    "default": 0.1
+    "type": [float]
+    "description": |-
+      The proportion of training data to set aside as validation set for early stopping.
+    "longDescription": |-
+      The proportion of training data to set aside as validation set for
+      early stopping. Must be between 0 and 1.
+      Only used if ``n_iter_no_change`` is set to an integer.
+#    .. versionadded:: 0.20
+  - "parameterName": n_iter_no_change
+    "default": Null
+    "type": [integer, "Null"]
+    "description": |-
+      ``n_iter_no_change`` is used to decide if early stopping will be used to terminate training when validation score is not improving.
+    "longDescription": |-
+      ``n_iter_no_change`` is used to decide if early stopping will be used
+      to terminate training when validation score is not improving. By
+      default it is set to None to disable early stopping. If set to a
+      number, it will set aside ``validation_fraction`` size of the training
+      data as validation and terminate training when validation score is not
+      improving in all of the previous ``n_iter_no_change`` numbers of
+      iterations.
+#    .. versionadded:: 0.20
+  - "parameterName": tol
+    "default": 0.0001
+    "type": [float]
+    "description": |-
+      Tolerance for the early stopping.
+    "longDescription": |-
+      Tolerance for the early stopping. When the loss is not improving
+      by at least tol for ``n_iter_no_change`` iterations (if set to a
+      number), the training stops.
+#    .. versionadded:: 0.20
+  - "parameterName": ccp_alpha
+    "default": 0
+    "type": [float]
+    "description": |-
+      Complexity parameter used for Minimal Cost-Complexity Pruning.
+    "longDescription": |-
+      Complexity parameter used for Minimal Cost-Complexity Pruning. The
+      subtree with the largest cost complexity that is smaller than
+      ``ccp_alpha`` will be chosen. By default, no pruning is performed. See
+      :ref:`minimal_cost_complexity_pruning` for details.
+#    .. versionadded:: 0.22
+

@@ -1,0 +1,164 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Based on Scikit-learn's source (https://github.com/scikit-learn/scikit-learn)
+# Scikit-learn has new BSD license, Copyright (c) 2007–2020 The scikit-learn developers.
+#
+
+pythonClassName: aicSLModelMetrics
+UDFName: aicModelMetrics
+description: |-
+  Returns score and metrics for evaluating the quality of a model’s predictions.
+notes: |-
+helpLink:
+parameters:
+  - parameterName: parameters 
+    UDFParameter: True
+    UDFParameterIndex: 1
+    type: [parameters]
+    description: |-
+      is a 2 dimensional list of parameter(s). The list contains key-value pairs.
+  - parameterName: AIcells_tool_name
+    UDFParameter: True
+    UDFParameterIndex: 2
+    type: [string]
+    description: |-
+      is the name of the AIcells tool. You can get the aic function list with the aicTool() function.
+  - parameterName: tool_parameters
+    UDFParameter: True
+    UDFParameterIndex: 3
+    type: [parameters]
+    description: |-
+      is a 2 dimensional list of tool parameter(s). The list contains key-value pairs.
+  - parameterName: input_data
+    UDFParameter: True
+    UDFParameterIndex: 4
+    columnHeader: True
+    type: [dataframe]
+    description: |-
+      is a table or range with header.
+  - parameterName: selected_target
+    UDFParameter: True
+    UDFParameterIndex: 5
+    type: [string]
+    description: |-
+      is a selected column header name.
+  - parameterName: selected_features
+    UDFParameter: True
+    UDFParameterIndex: 5
+    default: Null
+    type: [list, "Null"]
+    description: |- 
+      is a list of selected column header names for model features. When it's Null or not defined, the model uses all columns except selected_target
+  - parameterName: test_size
+    UDFParameter: True
+    type: [float]
+    UDFParameterIndex: 6
+    default: 0.33
+    description: |-
+      is a float value between 0.0 and 1.0: toset the proportion of the dataset to include in the test split.
+  - parameterName: selected_metrics
+    UDFParameter: True
+    UDFParameterIndex: 1
+    type: [string, list]
+    description: |-
+      list of metrics.
+  - parameterName: greater_is_better
+    UDFParameter: True
+    UDFParameterIndex: 1
+    default: False
+    type: [boolean]
+    description: |-
+      TODO
+  - parameterName: display_column_headers
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: True
+    type: [boolean]
+    description: |-
+     is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE.
+  - parameterName: transpose
+    UDFParameter: True
+    type: [boolean]
+    UDFParameterIndex: 6
+    default: False
+    description: |- 
+      is a logical value: to transpose the results =TRUE
+#  - parameterName: details
+#    UDFParameter: True
+#    type: [boolean]
+#    UDFParameterIndex: 6
+#    default: False
+#    description: |-
+#      is a logical value: to return only model's score =FALSE, to return all details =TRUE.
+  - parameterName: seed
+    UDFParameter: True
+    type: [integer, "Null"]
+    default: Null
+    description: Random seed
+groups:
+  regression:
+    - explained_variance
+    - max_error
+    - mean_absolute_error
+    - mean_squared_error
+    - root_mean_squared_error
+#    - mean_squared_log_error
+    - median_absolute_error
+    - r2
+#    - mean_poisson_deviance
+#    - mean_gamma_deviance
+metrics:
+# regression
+  - name: explained_variance
+    function: sklearn.metrics.explained_variance_score(y_true, y_pred)
+    description: Explained variance regression score function
+  - name: max_error
+    function: sklearn.metrics.max_error(y_true, y_pred)
+    description: max_error metric calculates the maximum residual error.
+    greater_is_better: False
+  - name: mean_absolute_error
+    function: sklearn.metrics.mean_absolute_error(y_true, y_pred)
+    description: Mean absolute error regression loss
+    greater_is_better: False
+  - name: mean_squared_error
+    function: sklearn.metrics.mean_squared_error(y_true, y_pred[, …])
+    description: Mean squared error regression loss
+    greater_is_better: False
+  - name: root_mean_squared_error
+    function: sklearn.metrics.mean_squared_error(y_true, y_pred[, …])
+    description: Mean squared error regression loss
+    greater_is_better: False
+    argumants:
+      squared: False
+  - name: mean_squared_log_error
+    function: sklearn.metrics.mean_squared_log_error(y_true, y_pred)
+    description: Mean squared logarithmic error regression loss
+    greater_is_better: False
+  - name: median_absolute_error
+    function: sklearn.metrics.median_absolute_error(y_true, y_pred)
+    description: Median absolute error regression loss
+    greater_is_better: False
+  - name: r2
+    function: sklearn.metrics.r2_score(y_true, y_pred[, …])
+    description: R^2 (coefficient of determination) regression score function.
+  - name: mean_poisson_deviance
+    function: sklearn.metrics.mean_poisson_deviance(y_true, y_pred)
+    description: Mean Poisson deviance regression loss.
+    greater_is_better: False
+  - name: mean_gamma_deviance
+    function: sklearn.metrics.mean_gamma_deviance(y_true, y_pred)
+    description: Mean Gamma deviance regression loss.
+    greater_is_better: False
+

@@ -1,0 +1,17 @@
+.idea/
+.git/
+__pycache__
+~*
+/aicells-python/aicells_pkg/aicells/udf-server/classes/udf-draft/
+/aicells-python/aicells_pkg/aicells/udf-server/yml/tool-1-draft/
+/aicells-python/aicells_pkg/aicells/udf-server/yml/udf-1-draft/
+/aicells-python/aicells_pkg/aicells/udf-server/classes/udf/aicSGTest.py
+/aicells-python/aicells_pkg/aicells/udf-server/yml/udf-2-alpha/aicSGTest.yml
+/aicells-python/aicells_pkg/aicells.egg-info/
+/aicells-python/aicells_pkg/build/
+/aicells-python/aicells_pkg/dist/
+/aicells-python/winpython64-3760/
+/aicells_pkg-conda/
+/trash/
+/bugs/
+/Examples/

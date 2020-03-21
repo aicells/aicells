@@ -1,0 +1,139 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Based on Scikit-learn's source (https://github.com/scikit-learn/scikit-learn)
+# Scikit-learn has new BSD license, Copyright (c) 2007–2020 The scikit-learn developers.
+#
+
+description: Linear Model trained with L1 prior as regularizer (aka the Lasso)
+"model":
+  "configfileDate": |-
+    2020-02-27
+  "modelClass": |-
+    <class 'sklearn.linear_model._coordinate_descent.Lasso'>
+  "modelName": |-
+    Lasso
+"parameters":
+  - "parameterName": alpha
+    "default": 1
+    "type": [float]
+    "description": Constant that multiplies the L1 term.
+    "longDescription": |-
+      Constant that multiplies the L1 term. Defaults to 1.0.
+      ``alpha = 0`` is equivalent to an ordinary least square, solved
+      by the :class:`LinearRegression` object. For numerical
+      reasons, using ``alpha = 0`` with the ``Lasso`` object is not advised.
+      Given this, you should use the :class:`LinearRegression` object.
+  - "parameterName": fit_intercept
+    "default": True
+    "type": [boolean]
+    "description": |-
+      Whether to calculate the intercept for this model.
+    "longDescription": |-
+      Whether to calculate the intercept for this model. If set
+      to False, no intercept will be used in calculations
+      (i.e. data is expected to be centered).
+  - "parameterName": normalize
+    "default": False
+    "type":  [boolean]
+    "description": |-
+      This parameter is ignored when ``fit_intercept`` is set to False.
+    "longDescription": |-
+      This parameter is ignored when ``fit_intercept`` is set to False.
+      If True, the regressors X will be normalized before regression by
+      subtracting the mean and dividing by the l2-norm.
+      If you wish to standardize, please use
+      :class:`sklearn.preprocessing.StandardScaler` before calling ``fit``
+      on an estimator with ``normalize=False``.
+  - "parameterName": precompute
+    "default": False
+    "type":  [boolean, set]
+    setValues: ["auto"]
+    "description": |-
+      Whether to use a precomputed Gram matrix to speed upcalculations.
+    "longDescription": |-
+      Whether to use a precomputed Gram matrix to speed up
+      calculations. If set to ``'auto'`` let us decide. For sparse input
+      this option is always ``True`` to preserve sparsity.
+#      The Gram matrix can also be passed as argument.
+#- "parameterName": |-
+#    copy_X
+#   "default": |-
+#    True
+#   "type": |-
+#    boolean,optional
+#   "description": |-
+#    If ``True``, X will be copied; else, it may be overwritten.
+#   "longDescription": |-
+#    If ``True``, X will be copied; else, it may be overwritten.
+  - "parameterName": max_iter
+    "default": 1000
+    "type": [integer]
+    "description": |-
+      The maximum number of iterations.
+    "longDescription": |-
+      The maximum number of iterations
+  - "parameterName": tol
+    "default": 0.0001
+    "type": [float]
+    "description": |-
+      The tolerance for the optimization: if the updates aresmaller than ``tol``, the optimization code checks thedual gap for optimality and continues until it is smallerthan ``tol``.
+    "longDescription": |-
+      The tolerance for the optimization: if the updates are
+      smaller than ``tol``, the optimization code checks the
+      dual gap for optimality and continues until it is smaller
+      than ``tol``.
+#- "parameterName": |-
+#    warm_start
+#   "default": |-
+#    False
+#   "type": |-
+#    bool,optional
+#   "description": |-
+#    When set to True, reuse the solution of the previous call to fit asinitialization, otherwise, just erase the previous solution.
+#   "longDescription": |-
+#    When set to True, reuse the solution of the previous call to fit as
+#    initialization, otherwise, just erase the previous solution.
+#    See :term:`the Glossary <warm_start>`.
+  - "parameterName": positive
+    "default": False
+    "type": [boolean]
+    "description": |-
+      When set to ``True``, forces the coefficients to be positive.
+    "longDescription": |-
+      When set to ``True``, forces the coefficients to be positive.
+  - "parameterName": random_state
+    "default": Null
+    "type": [integer, "Null"]
+    "description": |-
+      The seed of the pseudo random number generator that selects a random feature to update.
+    "longDescription": |-
+      The seed of the pseudo random number generator that selects a random
+      feature to update.  If int, random_state is the seed used by the random
+      number generator; If RandomState instance, random_state is the random
+      number generator; If None, the random number generator is the
+      RandomState instance used by `np.random`. Used when ``selection`` ==
+      'random'.
+  - "parameterName": selection
+    "default": cyclic
+    "type": [set]
+    setValues: [cyclic, random]
+    "description": |-
+      If set to 'random', a random coefficient is updated every iteration rather than looping over features sequentially by default.
+    "longDescription": |-
+      If set to 'random', a random coefficient is updated every iteration
+      rather than looping over features sequentially by default. This
+      (setting to 'random') often leads to significantly faster convergence
+      especially when tol is higher than 1e-4.
+

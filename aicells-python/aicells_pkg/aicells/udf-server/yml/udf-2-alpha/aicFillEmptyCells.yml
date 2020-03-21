@@ -1,0 +1,79 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 Gergely Szerovay, László Siller
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+pythonClassName: aicFillEmptyCells
+UDFName: aicFillEmptyCells
+description: |-
+  Fills the empty cells with value according the selected method.
+notes: |-
+helpLink:
+parameters:
+  - parameterName: parameters
+    UDFParameter: True
+    UDFParameterIndex: 1
+    type: [parameters]
+    description: |-
+      is a 2 dimensional list of parameter(s). The list contains key-value pairs.
+  - parameterName: input_data
+    UDFParameter: True
+    UDFParameterIndex: 4
+    columnHeader: True
+    type: [dataframe]
+    description: |-
+      is a table or range with header.
+  - parameterName: selected_columns
+    UDFParameter: True
+    UDFParameterIndex: 5
+    type: [list, "Null"]
+# TODO: több is lehet, ha Null, akkor az összes oszlopot filleli
+    description: |-
+      is a list of selected column header names. For select all columns, leave it empty. You can select adjacent cells only.
+  - parameterName: transpose
+    UDFParameter: True
+    type: [boolean]
+    UDFParameterIndex: 6
+    default: False
+    description: |-
+      is a logical value: to transpose the results =TRUE
+#  - parameterName: seed
+#    UDFParameter: True
+#    type: [integer, "Null"]
+#    default: Null
+#    description: seed desc
+  - parameterName: value
+    UDFParameter: True
+    type: [integer, string, "Null"]
+    default: Null
+    description: |-
+     is a number or string: to fill empty cells (e.g. 0) when 'method' is Null.
+  - parameterName: method
+    UDFParameter: True
+    type: [set]
+    setValues: ['value', 'pad', 'ffill', 'backfill', 'bfill', 'mean', 'median']
+    default: Null
+# TODO: Null - fill with 'value'
+    description: |-
+      Method to use for filling empty cells: 'value', 'pad', 'ffill', 'backfill', 'bfill', 'mean', 'median'.
+  - parameterName: return_all_columns
+    UDFParameter: True
+    type: [boolean]
+    default: True
+    description: |-
+      when TRUE, function returns all columns from input_data, when FALSE, function returns only the filled columns
+  - parameterName: limit
+    UDFParameter: True
+    type: [integer, "Null"]
+    default: Null
+    description: |-
+      if method is specified, this is the maximum number of consecutive NaN values to forward/backward fill. If method is not specified, this is the maximum number of entries along the entire axis where NaNs will be filled. Must be greater than 0 if not None.

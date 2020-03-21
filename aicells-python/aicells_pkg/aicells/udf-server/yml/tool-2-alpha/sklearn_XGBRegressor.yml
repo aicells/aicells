@@ -1,0 +1,218 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Based on Scikit-learn's source (https://github.com/scikit-learn/scikit-learn)
+# Scikit-learn has new BSD license, Copyright (c) 2007–2020 The scikit-learn developers.
+#
+
+"model":
+  "configfileDate": |-
+    2020-02-27
+  "modelClass": |-
+    <class 'xgboost.sklearn.XGBRegressor'>
+  "modelName": |-
+    XGBRegressor
+description: XGBoost Regressor (using scikit-learn interface)
+"parameters":
+  - "parameterName": max_depth
+    "default": 3
+    "type": [integer]
+    "description": |-
+      Maximum tree depth for base learners.
+    "longDescription": |-
+      Maximum tree depth for base learners.
+  - "parameterName": learning_rate
+    "default": 0.1
+    "type": [float]
+    "description": |-
+      Boosting learning rate (xgb's "eta").
+    "longDescription": |-
+      Boosting learning rate (xgb's "eta")
+  - "parameterName": n_estimators
+    "default": 100
+    "type": [integer]
+    "description": |-
+      Number of trees to fit.
+    "longDescription": |-
+      Number of trees to fit.
+#  - "parameterName": verbosity
+#   "default": |-
+#    1
+#   "type": |-
+#    int
+#   "description": |-
+#    The degree of verbosity.
+#   "longDescription": |-
+#    The degree of verbosity. Valid values are 0 (silent) - 3 (debug).
+#- "parameterName": |-
+#    silent
+#   "default": |-
+#    None
+#   "type": |-
+#    boolean
+#   "description": |-
+#    Whether to print messages while running boosting.
+#   "longDescription": |-
+#    Whether to print messages while running boosting. Deprecated. Use verbosity instead.
+#  - "parameterName": objective
+#    "default": "reg:linear"
+#    "type": |-
+#    stringorcallable
+#    "description": |-
+#      Specify the learning task and the corresponding learning objective ora custom objective function to be used (see note below).
+#    "longDescription": |-
+#      Specify the learning task and the corresponding learning objective or
+#      a custom objective function to be used (see note below).
+  - "parameterName": booster
+    "default": gbtree
+    "type": [set]
+    setValues: [gbtree, gblinear, dart]
+    "description": |-
+      Specify which booster to use: gbtree, gblinear or dart.
+    "longDescription": |-
+      Specify which booster to use: gbtree, gblinear or dart.
+#- "parameterName": |-
+#    n_jobs
+#   "default": |-
+#    1
+#   "type": |-
+#    int
+#   "description": |-
+#    Number of parallel threads used to run xgboost.
+#   "longDescription": |-
+#    Number of parallel threads used to run xgboost.  (replaces ``nthread``)
+#- "parameterName": |-
+#    nthread
+#   "default": |-
+#    None
+#   "type": |-
+#    int
+#   "description": |-
+#    Number of parallel threads used to run xgboost.
+#   "longDescription": |-
+#    Number of parallel threads used to run xgboost.  (Deprecated, please use ``n_jobs``)
+  - "parameterName": gamma
+    "default": 0
+    "type": [float]
+    "description": |-
+      Minimum loss reduction required to make a further partition on a leaf node of the tree.
+    "longDescription": |-
+      Minimum loss reduction required to make a further partition on a leaf node of the tree.
+  - "parameterName": min_child_weight
+    "default": 1
+    "type": [integer]
+    "description": |-
+      Minimum sum of instance weight(hessian) needed in a child.
+    "longDescription": |-
+      Minimum sum of instance weight(hessian) needed in a child.
+  - "parameterName": max_delta_step
+    "default": 0
+    "type": [integer]
+    "description": |-
+      Maximum delta step we allow each tree's weight estimation to be.
+    "longDescription": |-
+      Maximum delta step we allow each tree's weight estimation to be.
+  - "parameterName": subsample
+    "default": 1
+    "type": [float]
+    "description": |-
+      Subsample ratio of the training instance.
+    "longDescription": |-
+      Subsample ratio of the training instance.
+  - "parameterName": colsample_bytree
+    "default": 1
+    "type": [float]
+    "description": |-
+      Subsample ratio of columns when constructing each tree.
+    "longDescription": |-
+      Subsample ratio of columns when constructing each tree.
+  - "parameterName": colsample_bylevel
+    "default": 1
+    "type": [float]
+    "description": |-
+      Subsample ratio of columns for each level.
+    "longDescription": |-
+      Subsample ratio of columns for each level.
+  - "parameterName": colsample_bynode
+    "default": 1
+    "type": [float]
+    "description": |-
+      Subsample ratio of columns for each split.
+    "longDescription": |-
+      Subsample ratio of columns for each split.
+  - "parameterName": reg_alpha
+    "default": 0
+    "type": [float]
+    "description": |-
+      L1 regularization term on weights.
+    "longDescription": |-
+      L1 regularization term on weights
+  - "parameterName": reg_lambda
+    "default": 1
+    "type": [float]
+    "description": |-
+      L2 regularization term on weights.
+    "longDescription": |-
+      L2 regularization term on weights
+  - "parameterName": scale_pos_weight
+    "default": 1
+    "type": [float]
+    "description": |-
+      Balancing of positive and negative weights.
+    "longDescription": |-
+      Balancing of positive and negative weights.
+  - "parameterName": base_score
+    "default": 0.5
+    "type": [float]
+    "description": |-
+      The initial prediction score of all instances, global bias.
+    "longDescription": |-
+      The initial prediction score of all instances, global bias.
+  - "parameterName": random_state
+    "default": 0
+    "type": [integer]
+    "description": |-
+      Random number seed.
+    "longDescription": |-
+      Random number seed.
+#        (replaces seed)
+#  - "parameterName": |-
+#    seed
+#   "default": |-
+#    None
+#   "type": |-
+#    int
+#   "description": |-
+#    Random number seed.
+#   "longDescription": |-
+#    Random number seed.  (Deprecated, please use random_state)
+#  - "parameterName": missing
+#    "default": Null
+#    "type": [float, "Null"]
+#    "description": |-
+#      Value in the data which needs to be present as a missing value.
+#    "longDescription": |-
+#      Value in the data which needs to be present as a missing value. If
+#      None, defaults to np.nan.
+  - "parameterName": importance_type
+    "default": gain
+    "type": [set]
+    setValues: ["gain","weight", "cover", "total_gain", "total_cover"]
+    "description": |-
+      The feature importance type
+#       for the feature_importances_ property: either "gain","weight", "cover", "total_gain" or "total_cover".
+    "longDescription": |-
+      The feature importance type for the feature_importances_ property: either "gain",
+      "weight", "cover", "total_gain" or "total_cover".
+
