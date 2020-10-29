@@ -1,0 +1,110 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+pythonClassName: aicGetDummies
+tag: [udf, macro]
+description: Converts categorical columns into dummy/indicator columns.
+notes: |-
+helpLink:
+parameters:
+  - parameterName: parameters
+    UDFParameter: True
+    UDFParameterIndex: 1
+    type: [parameters]
+    description: |-
+      is a 2 dimensional list of parameter(s). The list contains key value pairs.
+  - parameterName: input_data
+    UDFParameter: True
+    UDFParameterIndex: 2
+    columnHeader: True
+    type: [dataframe]
+    description: |-
+      is a table or range with header.
+  - parameterName: selected_columns
+    UDFParameter: True
+    UDFParameterIndex: 3
+    default: Null
+    type: [list, "Null"]
+    description: |-
+      is a list of selected column header names or empty. To use all columns = FALSE.
+  - parameterName: full_table
+    UDFParameter: True
+    UDFParameterIndex: 3
+    default: Null
+    type: [boolean, "Null"]
+    description: |-
+      is a logical value: when TRUE, the function returns rows are not in "selected_columns" and the dummies of the selected columns
+  - parameterName: column_header
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: True
+    type: [boolean]
+    description: |-
+      is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE.
+#  - parameterName: row_header
+#    UDFParameter: True
+#    UDFParameterIndex: -1
+#    default: True
+#    type: [boolean]
+#    description: |-
+#      is a logical value. For transpose the results, use True.
+  - parameterName: transpose
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: False
+    type: [boolean]
+    description: |-
+      is a logical value: to transpose the results =TRUE
+  - parameterName: prefix
+    UDFParameter: False
+    UDFParameterIndex: 3
+    default: Null
+    type: [list, "Null"]
+    description: |-
+      TODO
+  - parameterName: prefix_sep
+    UDFParameter: False
+    UDFParameterIndex: 3
+    default: '_'
+    type: [string, "Null"]
+    description: |-
+      if appending prefix, separator/delimiter to use.
+  - parameterName: dummy_na
+    UDFParameter: False
+    UDFParameterIndex: 3
+    default: False
+    type: [boolean, "Null"]
+    description: |-
+      is a logical value: to add a column to indicate empty cells =TRUE, to ignore empty cells =FALSE.
+#  - parameterName: columns
+#    UDFParameter: False
+#    UDFParameterIndex: 3
+#    default: Null
+#    type: [list, "Null"]
+#    description: |-
+#      is a list of selected column header names or FALSE. To use all columns = FALSE.
+#  - parameterName: sparse
+#    UDFParameter: False
+#    UDFParameterIndex: 3
+#    default: False
+#    type: [boolean, "Null"]
+#    description: |-
+#      is a list of selected column header names or FALSE. To use all columns = FALSE.
+  - parameterName: drop_first
+    UDFParameter: False
+    UDFParameterIndex: 3
+    default: False
+    type: [boolean, "Null"]
+    description: |-
+      whether to get k-1 dummies out of k categorical levels by removing the first level.

@@ -1,0 +1,116 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 Gergely Szerovay, László Siller
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Based on Pandas's source (https://github.com/pandas-dev/pandas)
+# Pandas has BSD 3-Clause License
+# Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+# Copyright (c) 2011-2020, Open source contributors.
+
+description: CSV reader / writer
+tag: []
+parameters:
+  - parameterName: data_source
+    type: [set]
+    setValues: ["data_source_CSV"]
+    description: "Always =data_source_CSV"
+  - parameterName: file
+    type: [string]
+    description: "The path of CSV file"
+  - parameterName: read_only
+    type: [boolean]
+    default: True
+    description: "When =TRUE, the file is read-only"
+  - parameterName: header
+    type: [boolean]
+    default: True
+    description: "When the CSV file or the data to write has headers =TRUE"
+  - parameterName: update_on_referenced_hash_change
+    columnHeader: False
+    type: [string, "Null"]
+    description:  |-
+      when the referenced datastore hash changed, update the calculations based on this data source.
+    default: Null
+  - parameterName: hash
+    type: [string, "Null"]
+    description: ""
+    default: Null
+  - parameterName: compression
+    type: [set]
+    setValues: [infer, gzip, bz2, zip, xz]
+    default: infer
+    description: "Represents compression mode. If compression mode is ‘infer’, then detect compression mode from the following extensions: ‘.gz’, ‘.bz2’, ‘.zip’ or ‘.xz’. (otherwise no compression). "
+  - parameterName: selected_columns
+    default: Null
+    type: [list, "Null"]
+    description: |-
+      is a list of selected column header names or empty. For select all columns, use empty. You can select adjacent cells only.
+  - parameterName: delimiter
+    type: [string]
+    default: ','
+    description: "Delimiter to use. \\t = tab "
+  - parameterName: quotechar
+    type: [string, "Null"]
+    default: '"'
+    description: "The character used to denote the start and end of a quoted item. Quoted items can include the delimiter and it will be ignored."
+  - parameterName: quoting
+    type: [integer]
+    default: 0
+    description: "Control field quoting behavior. Use one of QUOTE_MINIMAL (0), QUOTE_ALL (1), QUOTE_NONNUMERIC (2) or QUOTE_NONE (3)."
+  - parameterName: doublequote
+    type: [boolean]
+    default: True
+    description: "When quotechar is specified and quoting is not QUOTE_NONE, indicate whether or not to interpret two consecutive quotechar elements INSIDE a field as a single quotechar element."
+  - parameterName: escapechar
+    type: [string, "Null"]
+    default: Null
+    description: "One-character string used to escape other characters."
+  - parameterName: skiprows
+    type: [integer, "Null"]
+    default: Null
+    description: "(only at CSV read) Number of lines to skip at the start of the file."
+  - parameterName: nrows
+    type: [integer, "Null"]
+    default: Null
+    description: "(only at CSV read) Number of rows of file to read. Useful for reading pieces of large files."
+  - parameterName: thousands
+    type: [string, "Null"]
+    default: Null
+    description: "(only at CSV read) Thousands separator"
+  - parameterName: decimal
+    type: [string]
+    default: '.'
+    description: "Character to recognize as decimal point (e.g. use ‘,’ for European data)."
+  - parameterName: float_format
+    type: [string, "Null"]
+    default: Null
+    description: "(only at CSV write) Format string for floating point numbers."
+  - parameterName: date_format
+    type: [string, "Null"]
+    default: Null
+    description: "(only at CSV write) Format string for datetime objects."
+  - parameterName: comment
+    type: [string, "Null"]
+    default: Null
+    description: "(only at CSV read) Indicates remainder of line should not be parsed. If found at the beginning of a line, the line will be ignored altogether. This parameter must be a single character. "
+  - parameterName: na_values
+    type: [list, "Null"]
+    default: Null
+    description: "(only at CSV write) Additional strings to recognize as NA/NaN."
+    #By default the following values are interpreted as NaN: ‘’, ‘#N/A’, ‘#N/A N/A’, ‘#NA’, ‘-1.#IND’, ‘-1.#QNAN’, ‘-NaN’, ‘-nan’, ‘1.#IND’, ‘1.#QNAN’, ‘’, ‘N/A’, ‘NA’, ‘NULL’, ‘NaN’, ‘n/a’, ‘nan’, ‘null’.
+  - parameterName: na_rep
+    type: [string, "Null"]
+    default: Null
+    description: "(only at CSV write) Missing data representation."
+
+

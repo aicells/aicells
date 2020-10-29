@@ -86,16 +86,29 @@ Public Function IsFXWindowOpen() As Boolean
     
 End Function
 
-Public Function aicRangeReference(r As range)
+Public Function RunFunction(r As range, recalculate As Boolean)
+    'Call UserFormFunctionRunner.SetMacroMode(r, recalculate)
+    r.Select
+    Call UserFormFunctionRunner.Show
+End Function
+
+
+Public Function aicRangeReference(r As range, Optional add_hash = True)
     Dim formula, rangeStr, rangeStrSheet, rangeStrRC As String
     Dim callerRange
     Dim i, j As Long
+    Dim rightCut As Long
     
     Set callerRange = Application.Caller
     formula = callerRange.cells(1, 1).formula
     If Mid$(formula, 1, 19) <> "=aicRangeReference(" Then GoTo valueError
     
-    rangeStr = Mid$(formula, 20, Len(formula) - 20)
+    rightCut = 0
+    
+    If Right$(formula, 6) = "FALSE)" Then: rightCut = 7
+    If Right$(formula, 5) = "TRUE)" Then: rightCut = 5
+        
+    rangeStr = Mid$(formula, 20, Len(formula) - 20 - rightCut)
         
     j = InStrRev(rangeStr, "[")
     If j = 0 Then
@@ -105,7 +118,7 @@ Public Function aicRangeReference(r As range)
             rangeStrSheet = Mid$(rangeStr, 1, i - 1)
             rangeStrRC = Mid$(rangeStr, i + 1, Len(rangeStr) - 3)
     
-            If Left$(rangeStrSheet, 1) = "'" Then
+            If left$(rangeStrSheet, 1) = "'" Then
                 rangeStrSheet = Mid$(rangeStr, 2, Len(rangeStrSheet) - 2)
             End If
     
@@ -121,7 +134,12 @@ Public Function aicRangeReference(r As range)
 '    Debug.Print formula
 '    Debug.Print rangeStr
 
-    aicRangeReference = rangeStr & "  {" & Right("00000000" & Hex(Int(Rnd * 2147483647)), 8) & "}"
+    If add_hash Then
+        aicRangeReference = rangeStr & "  {" & Right("00000000" & Hex(Int(Rnd * 2147483647)), 8) & "}"
+    Else
+        aicRangeReference = rangeStr
+    End If
+        
     Exit Function
 valueError:
     Set aicRangeReference = Nothing
@@ -133,7 +151,7 @@ Public Function aicDebugRangeReference(r As range)
     
     If Not r.HasFormula Then GoTo valueError
 
-    addressAsText = r.cells(1, 1).Text
+    addressAsText = r.cells(1, 1).text
     
     If Mid$(r.cells(1, 1).formula, 1, 19) <> "=aicRangeReference(" Then GoTo valueError
 
@@ -175,7 +193,7 @@ End Function
 Public Function CountRangeErrors(cells As range) As Long
    Dim cell As range
    For Each cell In cells
-      If Application.WorksheetFunction.IsError(cell) Then CountRangeErrors = CountRangeErrors + 1
+      If Application.WorksheetFunction.isError(cell) Then CountRangeErrors = CountRangeErrors + 1
    Next
 End Function
 
@@ -183,7 +201,7 @@ Public Function HasRangeErrors(cells) As Boolean
    Dim cell As range
    HasRangeErrors = False
    For Each cell In cells
-      If Application.WorksheetFunction.IsError(cell) Then
+      If Application.WorksheetFunction.isError(cell) Then
         HasRangeErrors = True
         Exit Function
       End If
@@ -226,17 +244,17 @@ Public Sub ShowErrors(e, callerRange As range)
     
     If ShowErrorsAsComments Then
         callerRange.AddComment msg
+        callerRange.Comment.Shape.width = 300
         callerRange.Comment.Shape.TextFrame.AutoSize = True
-        callerRange.Comment.Shape.Width = 300
     End If
 End Sub
 
-Private Function DecodeRangeReference(r As range)
+Public Function DecodeRangeReference(r As range)
     Dim addressAsText As String
     
     If Not r.HasFormula Then GoTo valueError
 
-    addressAsText = r.cells(1, 1).Text
+    addressAsText = r.cells(1, 1).text
     
     If Mid$(r.cells(1, 1).formula, 1, 19) <> "=aicRangeReference(" Then GoTo valueError
 
@@ -261,7 +279,7 @@ Function ProcessParameterRanges2(pb As PyParameterBuilder, parameters, namespace
 End Function
 
 Private Sub ProcessParameterRanges(pb As PyParameterBuilder, r, level As Long, namespace As String)
-    Dim y As Long
+    Dim x, y As Long
     Dim referencedRange As range
     
     ' scan the inpur range for errors
@@ -273,18 +291,32 @@ Private Sub ProcessParameterRanges(pb As PyParameterBuilder, r, level As Long, n
             
     pb.StoreRange namespace, r
 
-    ' when the range has 2 columns and less than 100 rows, search for references
-    If r.Columns.Count <> 2 Then Exit Sub
     If r.Rows.Count > 100 Then Exit Sub
+    If r.Columns.Count > 100 Then Exit Sub
     
-    For y = 1 To r.Rows.Count
-        If r.cells(y, 2).HasFormula Then
-            Set referencedRange = DecodeRangeReference(r.cells(y, 2))
-            If Not (referencedRange Is Nothing) Then
-                Call ProcessParameterRanges(pb, referencedRange, level + 1, namespace + "." + r.cells(y, 1).value)
+    ' when the range has 2 columns and less than 100 rows, search for references
+    If r.Columns.Count = 2 Then
+        For y = 1 To r.Rows.Count
+            If r.cells(y, 2).HasFormula Then
+                Set referencedRange = DecodeRangeReference(r.cells(y, 2))
+                If Not (referencedRange Is Nothing) Then
+                    Call ProcessParameterRanges(pb, referencedRange, level + 1, namespace + "." + r.cells(y, 1).value)
+                End If
             End If
-        End If
-    Next y
+        Next y
+    End If
+    
+    ' when the range has 2 rows and less than 100 columns, search for references
+    If r.Rows.Count = 2 Then
+        For x = 1 To r.Columns.Count
+            If r.cells(2, x).HasFormula Then
+                Set referencedRange = DecodeRangeReference(r.cells(2, x))
+                If Not (referencedRange Is Nothing) Then
+                    Call ProcessParameterRanges(pb, referencedRange, level + 1, namespace + "." + r.cells(1, x).value)
+                End If
+            End If
+        Next x
+    End If
     
 End Sub
 
@@ -295,18 +327,22 @@ Function RangeFromAddress(address As String) As range
     Dim ws As Worksheet
     Dim n As name
     Dim lo As ListObject
-    Dim i As Long
-    Dim j As Long
+    Dim i, j, k As Long
     Dim addressSheet As String
     Dim addressRange As String
     Dim listRange As range
     Dim addressTableName, addressHeaderName As String
     
-    Set callerRange = Application.Caller
+    If TypeOf Application.Caller Is range Then
+        Set callerRange = Application.Caller
+    Else
+        Set callerRange = Selection
+    End If
     Set callerSheet = callerRange.Worksheet
     Set callerWorkbook = callerSheet.Parent
     
-    address = Left(address, Len(address) - 12)
+    k = InStrRev(address, "{")
+    If k <> 0 Then: address = left(address, Len(address) - 12)
     
     'Debug.Print (address)
     
@@ -388,7 +424,7 @@ Function RangeFromAddress(address As String) As range
     End If
     
     On Error GoTo returnNothing
-    addressSheet = Left$(address, i - 1)
+    addressSheet = left$(address, i - 1)
     addressRange = Mid$(address, i + 1)
 
     Set sh = callerWorkbook.Sheets(addressSheet)
@@ -401,6 +437,8 @@ returnNothing:
     Set RangeFromAddress = Nothing
     Exit Function
 End Function
+
+
 
 
 

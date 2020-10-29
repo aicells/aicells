@@ -1,18 +1,13 @@
 <IntelliSense xmlns="http://schemas.excel-dna.net/intellisense/1.0">
   <FunctionInfo>
-   <Function Name="aicCorrelationMatrix" Description="" HelpTopic="">
-      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
-      <Argument Name="input_data" Description="is a table or range with header." />
-      <Argument Name="selected_columns_1" Description="is a list of selected column header names. For select all columns, leave it empty. These are the columns of the matrix." />
-      <Argument Name="selected_columns_2" Description="is a list of selected column header names. For select all columns, leave it empty. These are the rows of the matrix." />
-      <Argument Name="absolute_values" Description="is a logical value: to return original correlation coefficients leave it empty; to return the absolute values of correlation coefficients = TRUE." />
-      <Argument Name="display_column_headers" Description="is a logical value: set it TRUE to display column headers" />
-      <Argument Name="display_row_headers" Description="is a logical value: set it TRUE to display row headers" />
-      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
-    </Function>
    <Function Name="aicCountEmptyCells" Description="" HelpTopic="">
       <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
       <Argument Name="input_data" Description="is a table or range with or without header." />
+    </Function>
+   <Function Name="aicDataCopy" Description="" HelpTopic="">
+      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
+      <Argument Name="input_data" Description="is a table or range with header." />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
     </Function>
    <Function Name="aicDescribe" Description="" HelpTopic="">
       <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
@@ -36,6 +31,31 @@
       <Argument Name="return_all_columns" Description="when TRUE, function returns all columns from input_data, when FALSE, function returns only the filled columns" />
       <Argument Name="limit" Description="if method is specified, this is the maximum number of consecutive NaN values to forward/backward fill. If method is not specified, this is the maximum number of entries along the entire axis where NaNs will be filled. Must be greater than 0 if not None." />
     </Function>
+   <Function Name="aicFunctionDescription" Description="" HelpTopic="">
+      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
+    </Function>
+   <Function Name="aicFunctionList" Description="" HelpTopic="">
+    </Function>
+   <Function Name="aicFunctionParameterDataTypes" Description="" HelpTopic="">
+      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
+      <Argument Name="show_function_and_output" Description="is a logical value: to show the 'function' and 'output' fields =TRUE" />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicFunctionParameterDefaultValues" Description="" HelpTopic="">
+      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
+      <Argument Name="show_function_and_output" Description="is a logical value: to show the 'function' and 'output' fields =TRUE" />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicFunctionParameterDescriptions" Description="" HelpTopic="">
+      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
+      <Argument Name="show_function_and_output" Description="is a logical value: to show the 'function' and 'output' fields =TRUE" />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicFunctionParameters" Description="" HelpTopic="">
+      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
+      <Argument Name="show_function_and_output" Description="is a logical value: to show the 'function' and 'output' fields =TRUE" />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
    <Function Name="aicGetDummies" Description="" HelpTopic="">
       <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key value pairs." />
       <Argument Name="input_data" Description="is a table or range with header." />
@@ -50,6 +70,54 @@
       <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key value pairs." />
       <Argument Name="input_data" Description="is a table or a range or a single cell." />
     </Function>
+   <Function Name="aicLoadFromDataSource" Description="" HelpTopic="">
+      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
+      <Argument Name="data_source" Description="" />
+      <Argument Name="display_column_headers" Description="is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE." />
+      <Argument Name="display_row_headers" Description="is a logical value: to display row headers =TRUE or empty cell; to hide row headers = FALSE." />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicSaveToDataSource" Description="" HelpTopic="">
+      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
+      <Argument Name="data_source" Description="" />
+      <Argument Name="input_data" Description="is a table or range with header." />
+    </Function>
+   <Function Name="aicToolDescription" Description="" HelpTopic="">
+      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
+    </Function>
+   <Function Name="aicToolList" Description="" HelpTopic="">
+    </Function>
+   <Function Name="aicToolParameterDataTypes" Description="" HelpTopic="">
+      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicToolParameterDefaultValues" Description="" HelpTopic="">
+      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicToolParameterDescriptions" Description="" HelpTopic="">
+      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicToolParameters" Description="" HelpTopic="">
+      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicCorrelationMatrix" Description="" HelpTopic="">
+      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
+      <Argument Name="input_data" Description="is a table or range with header." />
+      <Argument Name="selected_columns_1" Description="is a list of selected column header names. For select all columns, leave it empty. These are the columns of the matrix." />
+      <Argument Name="selected_columns_2" Description="is a list of selected column header names. For select all columns, leave it empty. These are the rows of the matrix." />
+      <Argument Name="absolute_values" Description="is a logical value: to return original correlation coefficients leave it empty; to return the absolute values of correlation coefficients = TRUE." />
+      <Argument Name="display_column_headers" Description="is a logical value: set it TRUE to display column headers" />
+      <Argument Name="display_row_headers" Description="is a logical value: set it TRUE to display row headers" />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+    </Function>
+   <Function Name="aicRandom" Description="" HelpTopic="">
+      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key value pairs." />
+      <Argument Name="tool_name" Description="" />
+      <Argument Name="tool_parameters" Description="is a 2 dimensional list of the model's parameter(s). The list contains key value pairs." />
+    </Function>
    <Function Name="aicSLModelMetrics" Description="" HelpTopic="">
       <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
       <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
@@ -58,6 +126,20 @@
       <Argument Name="selected_target" Description="is a selected column header name." />
       <Argument Name="selected_features" Description="is a list of selected column header names for model features. When it's Null or not defined, the model uses all columns except selected_target" />
       <Argument Name="test_size" Description="is a float value between 0.0 and 1.0: toset the proportion of the dataset to include in the test split." />
+      <Argument Name="selected_metrics" Description="list of metrics." />
+      <Argument Name="greater_is_better" Description="TODO" />
+      <Argument Name="display_column_headers" Description="is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE." />
+      <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
+      <Argument Name="seed" Description="Random seed" />
+    </Function>
+   <Function Name="aicSLModelMetricsCV" Description="" HelpTopic="">
+      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
+      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
+      <Argument Name="tool_parameters" Description="is a 2 dimensional list of tool parameter(s). The list contains key-value pairs." />
+      <Argument Name="input_data" Description="is a table or range with header." />
+      <Argument Name="selected_target" Description="is a selected column header name." />
+      <Argument Name="selected_features" Description="is a list of selected column header names for model features. When it's Null or not defined, the model uses all columns except selected_target" />
+      <Argument Name="n_splits" Description="Number of folds. Must be at least 2." />
       <Argument Name="selected_metrics" Description="list of metrics." />
       <Argument Name="greater_is_better" Description="TODO" />
       <Argument Name="display_column_headers" Description="is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE." />
@@ -75,39 +157,9 @@
       <Argument Name="transpose" Description="is a logical value: to transpose the results =TRUE" />
       <Argument Name="seed" Description="Random seed" />
     </Function>
-   <Function Name="aicTool" Description="" HelpTopic="">
-    </Function>
-   <Function Name="aicToolDescription" Description="" HelpTopic="">
-      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
-    </Function>
-   <Function Name="aicToolParameterDataTypes" Description="" HelpTopic="">
-      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
-    </Function>
-   <Function Name="aicToolParameterDefaultValues" Description="" HelpTopic="">
-      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
-    </Function>
-   <Function Name="aicToolParameterDescriptions" Description="" HelpTopic="">
-      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
-    </Function>
-   <Function Name="aicToolParameters" Description="" HelpTopic="">
-      <Argument Name="AIcells_tool_name" Description="is the name of the AIcells tool. You can get the aic function list with the aicTool() function." />
-    </Function>
-   <Function Name="aicUDF" Description="" HelpTopic="">
-    </Function>
-   <Function Name="aicUDFDescription" Description="" HelpTopic="">
-      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
-    </Function>
-   <Function Name="aicUDFParameterDataTypes" Description="" HelpTopic="">
-      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
-    </Function>
-   <Function Name="aicUDFParameterDefaultValues" Description="" HelpTopic="">
-      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
-    </Function>
-   <Function Name="aicUDFParameterDescriptions" Description="" HelpTopic="">
-      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
-    </Function>
-   <Function Name="aicUDFParameters" Description="" HelpTopic="">
-      <Argument Name="AIcells_UDF_name" Description="is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function." />
+   <Function Name="aicSeabornGetExampleData" Description="" HelpTopic="">
+      <Argument Name="parameters" Description="is a 2 dimensional list of parameter(s). The list contains key-value pairs." />
+      <Argument Name="name" Description="Name of the dataset" />
     </Function>
   </FunctionInfo>
 </IntelliSense>

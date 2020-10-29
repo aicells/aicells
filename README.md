@@ -17,7 +17,7 @@ The Excel version has to support the [UNIQUE](https://support.office.com/en-us/a
 
 ## Installation
 
-You can download the latest pre-release from [here.](https://github.com/aicells/aicells/releases)
+You can download the latest pre-release (aicells-{version}.zip) from [here.](https://github.com/aicells/aicells/releases)  
 
 Unzip the release zip file. It contains a root folder called "aicells-{version}".
 
@@ -44,5 +44,17 @@ the UDF server is running, you can use AIcells' UDFs from Excel.
 
 Check out our examples from the aicells-{version}/aicells-examples/ directory.
 
+### Technology Stack
 
+* We use [WinPython](https://winpython.github.io/) portable portable distribution to execute the UDF server written in python
+* We use [xlwings](https://github.com/xlwings/xlwings) for the Excel-Python communication
+ 
+### Plugins
+
+We have five plugins in AICells version 0.0.2:
+* Core: Function and tool parameter lists, CSV read.write support
+* Correlation: Correlation matrix calculation
+* Random: Random number generators
+* Seaborn: Seaborn charting support, it can insert SVG Seaborn charts into the worksheet
+* Supervised-learning: Regression models from scikit-learn and XGBoost
  

@@ -1,0 +1,8 @@
+plugins: [
+  'core',
+  'correlation',
+  'random',
+  'supervised-learning',
+  'seaborn'
+]
+

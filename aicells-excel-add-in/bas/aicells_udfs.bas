@@ -1,124 +1,3 @@
-' aicCorrelationMatrix
-
-Private Sub aicCorrelationMatrix_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 8)
-    
-    description = "Returns the correlation matrix for the selected columns. Compute pairwise correlation of columns, excluding NA/null values."
-    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key-value pairs."
-    argumentDescriptions(2) = "is a table or range with header."
-    argumentDescriptions(3) = "is a list of selected column header names. For select all columns, leave it empty. These are the columns of the matrix."
-    argumentDescriptions(4) = "is a list of selected column header names. For select all columns, leave it empty. These are the rows of the matrix."
-    argumentDescriptions(5) = "is a logical value: to return original correlation coefficients leave it empty; to return the absolute values of correlation coefficients = TRUE."
-    argumentDescriptions(6) = "is a logical value: set it TRUE to display column headers"
-    argumentDescriptions(7) = "is a logical value: set it TRUE to display row headers"
-    argumentDescriptions(8) = "is a logical value: to transpose the results =TRUE"
-
-    Application.MacroOptions Macro:="aicCorrelationMatrix", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicCorrelationMatrix(Optional parameters = Null, Optional input_data = Null, Optional selected_columns_1 = Null, Optional selected_columns_2 = Null, Optional absolute_values = Null, Optional display_column_headers = Null, Optional display_row_headers = Null, Optional transpose = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicCorrelationMatrix = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicCorrelationMatrix"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicCorrelationMatrix", Application.Caller)    
-
-    If TypeOf parameters Is range Then
-        'If HasRangeErrors(parameters) Then GoTo valueError
-        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
-        parameters = "@AICELLS-RANGE@"
-    End If
-
-    If TypeOf input_data Is range Then
-        'If HasRangeErrors(input_data) Then GoTo valueError
-        pb.StoreRange "parameters.input_data", input_data
-        input_data = "@AICELLS-RANGE@"
-    ElseIf IsArray(input_data) Then
-        pb.StoreArray "parameters.input_data", input_data
-        scorers = "@AICELLS-RANGE@"
-    End If
-
-    If TypeOf selected_columns_1 Is range Then
-        'If HasRangeErrors(selected_columns_1) Then GoTo valueError
-        pb.StoreRange "parameters.selected_columns_1", selected_columns_1
-        selected_columns_1 = "@AICELLS-RANGE@"
-    ElseIf IsArray(selected_columns_1) Then
-        pb.StoreArray "parameters.selected_columns_1", selected_columns_1
-        scorers = "@AICELLS-RANGE@"
-    End If
-
-    If TypeOf selected_columns_2 Is range Then
-        'If HasRangeErrors(selected_columns_2) Then GoTo valueError
-        pb.StoreRange "parameters.selected_columns_2", selected_columns_2
-        selected_columns_2 = "@AICELLS-RANGE@"
-    ElseIf IsArray(selected_columns_2) Then
-        pb.StoreArray "parameters.selected_columns_2", selected_columns_2
-        scorers = "@AICELLS-RANGE@"
-    End If
-
-    If TypeOf absolute_values Is range Then
-        If absolute_values.Count <> 1 Then: GoTo valueError
-        absolute_values = absolute_values.Value
-    End If
-
-    If TypeOf display_column_headers Is range Then
-        If display_column_headers.Count <> 1 Then: GoTo valueError
-        display_column_headers = display_column_headers.Value
-    End If
-
-    If TypeOf display_row_headers Is range Then
-        If display_row_headers.Count <> 1 Then: GoTo valueError
-        display_row_headers = display_row_headers.Value
-    End If
-
-    If TypeOf transpose Is range Then
-        If transpose.Count <> 1 Then: GoTo valueError
-        transpose = transpose.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("parameters", parameters), _
-        Array("input_data", input_data), _
-        Array("selected_columns_1", selected_columns_1), _
-        Array("selected_columns_2", selected_columns_2), _
-        Array("absolute_values", absolute_values), _
-        Array("display_column_headers", display_column_headers), _
-        Array("display_row_headers", display_row_headers), _
-        Array("transpose", transpose)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicCorrelationMatrix = CVErr(xlErrCalc)
-    Else
-        aicCorrelationMatrix = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicCorrelationMatrix = Err.Description
-    Exit Function
-valueError:
-    aicCorrelationMatrix = CVErr(xlErrValue)
-    Exit Function
-End Function
-
 ' aicCountEmptyCells
 
 Private Sub aicCountEmptyCells_MacroOptions()
@@ -138,6 +17,7 @@ Function aicCountEmptyCells(Optional parameters = Null, Optional input_data = Nu
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicCountEmptyCells = "#FX"
         Exit Function
@@ -162,7 +42,8 @@ Function aicCountEmptyCells(Optional parameters = Null, Optional input_data = Nu
 
     If TypeOf input_data Is range Then
         'If HasRangeErrors(input_data) Then GoTo valueError
-        pb.StoreRange "parameters.input_data", input_data
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
         input_data = "@AICELLS-RANGE@"
     ElseIf IsArray(input_data) Then
         pb.StoreArray "parameters.input_data", input_data
@@ -170,9 +51,10 @@ Function aicCountEmptyCells(Optional parameters = Null, Optional input_data = Nu
     End If
 
     pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
         Array("parameters", parameters), _
         Array("input_data", input_data)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -187,6 +69,87 @@ failed:
     Exit Function
 valueError:
     aicCountEmptyCells = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicDataCopy
+
+Private Sub aicDataCopy_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 3)
+    
+    description = ""
+    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key-value pairs."
+    argumentDescriptions(2) = "is a table or range with header."
+    argumentDescriptions(3) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicDataCopy", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicDataCopy(Optional parameters = Null, Optional input_data = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicDataCopy = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicDataCopy"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicDataCopy", Application.Caller)    
+
+    If TypeOf parameters Is range Then
+        'If HasRangeErrors(parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
+        parameters = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf input_data Is range Then
+        'If HasRangeErrors(input_data) Then GoTo valueError
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
+        input_data = "@AICELLS-RANGE@"
+    ElseIf IsArray(input_data) Then
+        pb.StoreArray "parameters.input_data", input_data
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("parameters", parameters), _
+        Array("input_data", input_data), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicDataCopy = CVErr(xlErrCalc)
+    Else
+        aicDataCopy = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicDataCopy = Err.Description
+    Exit Function
+valueError:
+    aicDataCopy = CVErr(xlErrValue)
     Exit Function
 End Function
 
@@ -217,6 +180,7 @@ Function aicDescribe(Optional parameters = Null, Optional input_data = Null, Opt
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicDescribe = "#FX"
         Exit Function
@@ -241,7 +205,8 @@ Function aicDescribe(Optional parameters = Null, Optional input_data = Null, Opt
 
     If TypeOf input_data Is range Then
         'If HasRangeErrors(input_data) Then GoTo valueError
-        pb.StoreRange "parameters.input_data", input_data
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
         input_data = "@AICELLS-RANGE@"
     ElseIf IsArray(input_data) Then
         pb.StoreArray "parameters.input_data", input_data
@@ -250,7 +215,8 @@ Function aicDescribe(Optional parameters = Null, Optional input_data = Null, Opt
 
     If TypeOf selected_columns Is range Then
         'If HasRangeErrors(selected_columns) Then GoTo valueError
-        pb.StoreRange "parameters.selected_columns", selected_columns
+        'pb.StoreRange "parameters.selected_columns", selected_columns
+        If ProcessParameterRanges2(pb, selected_columns, "parameters.selected_columns") = False Then GoTo valueError        
         selected_columns = "@AICELLS-RANGE@"
     ElseIf IsArray(selected_columns) Then
         pb.StoreArray "parameters.selected_columns", selected_columns
@@ -259,7 +225,8 @@ Function aicDescribe(Optional parameters = Null, Optional input_data = Null, Opt
 
     If TypeOf selected_statistics Is range Then
         'If HasRangeErrors(selected_statistics) Then GoTo valueError
-        pb.StoreRange "parameters.selected_statistics", selected_statistics
+        'pb.StoreRange "parameters.selected_statistics", selected_statistics
+        If ProcessParameterRanges2(pb, selected_statistics, "parameters.selected_statistics") = False Then GoTo valueError        
         selected_statistics = "@AICELLS-RANGE@"
     ElseIf IsArray(selected_statistics) Then
         pb.StoreArray "parameters.selected_statistics", selected_statistics
@@ -297,6 +264,7 @@ Function aicDescribe(Optional parameters = Null, Optional input_data = Null, Opt
     End If
 
     pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
         Array("parameters", parameters), _
         Array("input_data", input_data), _
         Array("selected_columns", selected_columns), _
@@ -307,7 +275,7 @@ Function aicDescribe(Optional parameters = Null, Optional input_data = Null, Opt
         Array("percentile1", percentile1), _
         Array("percentile2", percentile2), _
         Array("percentile3", percentile3)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -350,6 +318,7 @@ Function aicFillEmptyCells(Optional parameters = Null, Optional input_data = Nul
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicFillEmptyCells = "#FX"
         Exit Function
@@ -374,7 +343,8 @@ Function aicFillEmptyCells(Optional parameters = Null, Optional input_data = Nul
 
     If TypeOf input_data Is range Then
         'If HasRangeErrors(input_data) Then GoTo valueError
-        pb.StoreRange "parameters.input_data", input_data
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
         input_data = "@AICELLS-RANGE@"
     ElseIf IsArray(input_data) Then
         pb.StoreArray "parameters.input_data", input_data
@@ -383,7 +353,8 @@ Function aicFillEmptyCells(Optional parameters = Null, Optional input_data = Nul
 
     If TypeOf selected_columns Is range Then
         'If HasRangeErrors(selected_columns) Then GoTo valueError
-        pb.StoreRange "parameters.selected_columns", selected_columns
+        'pb.StoreRange "parameters.selected_columns", selected_columns
+        If ProcessParameterRanges2(pb, selected_columns, "parameters.selected_columns") = False Then GoTo valueError        
         selected_columns = "@AICELLS-RANGE@"
     ElseIf IsArray(selected_columns) Then
         pb.StoreArray "parameters.selected_columns", selected_columns
@@ -416,6 +387,7 @@ Function aicFillEmptyCells(Optional parameters = Null, Optional input_data = Nul
     End If
 
     pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
         Array("parameters", parameters), _
         Array("input_data", input_data), _
         Array("selected_columns", selected_columns), _
@@ -424,7 +396,7 @@ Function aicFillEmptyCells(Optional parameters = Null, Optional input_data = Nul
         Array("method", method), _
         Array("return_all_columns", return_all_columns), _
         Array("limit", limit)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -439,6 +411,420 @@ failed:
     Exit Function
 valueError:
     aicFillEmptyCells = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicFunctionDescription
+
+Private Sub aicFunctionDescription_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 1)
+    
+    description = "Returns the description for a specific AIcells Excel function (UDF)."
+    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
+
+    Application.MacroOptions Macro:="aicFunctionDescription", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicFunctionDescription(Optional AIcells_UDF_name = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicFunctionDescription = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicFunctionDescription"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicFunctionDescription", Application.Caller)    
+
+    If TypeOf AIcells_UDF_name Is range Then
+        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
+        AIcells_UDF_name = AIcells_UDF_name.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_UDF_name", AIcells_UDF_name)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicFunctionDescription = CVErr(xlErrCalc)
+    Else
+        aicFunctionDescription = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicFunctionDescription = Err.Description
+    Exit Function
+valueError:
+    aicFunctionDescription = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicFunctionList
+
+Private Sub aicFunctionList_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    
+    
+    description = "Lists the available AIcells Excel functions (UDF). Enter the following formula in a cell: ""=aic.UDF()""."
+
+    Application.MacroOptions Macro:="aicFunctionList", description:=Description, Category:="AICells"
+End Sub
+
+Function aicFunctionList():
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicFunctionList = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicFunctionList"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicFunctionList", Application.Caller)    
+
+
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicFunctionList = CVErr(xlErrCalc)
+    Else
+        aicFunctionList = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicFunctionList = Err.Description
+    Exit Function
+valueError:
+    aicFunctionList = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicFunctionParameterDataTypes
+
+Private Sub aicFunctionParameterDataTypes_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 3)
+    
+    description = "Lists the parameter data types for a specific AIcells Excel function (UDF)."
+    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
+    argumentDescriptions(2) = "is a logical value: to show the 'function' and 'output' fields =TRUE"
+    argumentDescriptions(3) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicFunctionParameterDataTypes", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicFunctionParameterDataTypes(Optional AIcells_UDF_name = Null, Optional show_function_and_output = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicFunctionParameterDataTypes = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicFunctionParameterDataTypes"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicFunctionParameterDataTypes", Application.Caller)    
+
+    If TypeOf AIcells_UDF_name Is range Then
+        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
+        AIcells_UDF_name = AIcells_UDF_name.Value
+    End If
+
+    If TypeOf show_function_and_output Is range Then
+        If show_function_and_output.Count <> 1 Then: GoTo valueError
+        show_function_and_output = show_function_and_output.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_UDF_name", AIcells_UDF_name), _
+        Array("show_function_and_output", show_function_and_output), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicFunctionParameterDataTypes = CVErr(xlErrCalc)
+    Else
+        aicFunctionParameterDataTypes = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicFunctionParameterDataTypes = Err.Description
+    Exit Function
+valueError:
+    aicFunctionParameterDataTypes = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicFunctionParameterDefaultValues
+
+Private Sub aicFunctionParameterDefaultValues_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 3)
+    
+    description = "Lists the parameter default values for a specific AIcells Excel function (UDF)."
+    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
+    argumentDescriptions(2) = "is a logical value: to show the 'function' and 'output' fields =TRUE"
+    argumentDescriptions(3) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicFunctionParameterDefaultValues", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicFunctionParameterDefaultValues(Optional AIcells_UDF_name = Null, Optional show_function_and_output = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicFunctionParameterDefaultValues = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicFunctionParameterDefaultValues"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicFunctionParameterDefaultValues", Application.Caller)    
+
+    If TypeOf AIcells_UDF_name Is range Then
+        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
+        AIcells_UDF_name = AIcells_UDF_name.Value
+    End If
+
+    If TypeOf show_function_and_output Is range Then
+        If show_function_and_output.Count <> 1 Then: GoTo valueError
+        show_function_and_output = show_function_and_output.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_UDF_name", AIcells_UDF_name), _
+        Array("show_function_and_output", show_function_and_output), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicFunctionParameterDefaultValues = CVErr(xlErrCalc)
+    Else
+        aicFunctionParameterDefaultValues = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicFunctionParameterDefaultValues = Err.Description
+    Exit Function
+valueError:
+    aicFunctionParameterDefaultValues = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicFunctionParameterDescriptions
+
+Private Sub aicFunctionParameterDescriptions_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 3)
+    
+    description = "Lists the parameter descriptions for a specific AIcells Excel function (UDF)."
+    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
+    argumentDescriptions(2) = "is a logical value: to show the 'function' and 'output' fields =TRUE"
+    argumentDescriptions(3) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicFunctionParameterDescriptions", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicFunctionParameterDescriptions(Optional AIcells_UDF_name = Null, Optional show_function_and_output = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicFunctionParameterDescriptions = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicFunctionParameterDescriptions"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicFunctionParameterDescriptions", Application.Caller)    
+
+    If TypeOf AIcells_UDF_name Is range Then
+        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
+        AIcells_UDF_name = AIcells_UDF_name.Value
+    End If
+
+    If TypeOf show_function_and_output Is range Then
+        If show_function_and_output.Count <> 1 Then: GoTo valueError
+        show_function_and_output = show_function_and_output.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_UDF_name", AIcells_UDF_name), _
+        Array("show_function_and_output", show_function_and_output), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicFunctionParameterDescriptions = CVErr(xlErrCalc)
+    Else
+        aicFunctionParameterDescriptions = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicFunctionParameterDescriptions = Err.Description
+    Exit Function
+valueError:
+    aicFunctionParameterDescriptions = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicFunctionParameters
+
+Private Sub aicFunctionParameters_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 3)
+    
+    description = "Lists the parameters for a specific AIcells Excel function (UDF)."
+    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
+    argumentDescriptions(2) = "is a logical value: to show the 'function' and 'output' fields =TRUE"
+    argumentDescriptions(3) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicFunctionParameters", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicFunctionParameters(Optional AIcells_UDF_name = Null, Optional show_function_and_output = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicFunctionParameters = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicFunctionParameters"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicFunctionParameters", Application.Caller)    
+
+    If TypeOf AIcells_UDF_name Is range Then
+        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
+        AIcells_UDF_name = AIcells_UDF_name.Value
+    End If
+
+    If TypeOf show_function_and_output Is range Then
+        If show_function_and_output.Count <> 1 Then: GoTo valueError
+        show_function_and_output = show_function_and_output.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_UDF_name", AIcells_UDF_name), _
+        Array("show_function_and_output", show_function_and_output), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicFunctionParameters = CVErr(xlErrCalc)
+    Else
+        aicFunctionParameters = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicFunctionParameters = Err.Description
+    Exit Function
+valueError:
+    aicFunctionParameters = CVErr(xlErrValue)
     Exit Function
 End Function
 
@@ -465,6 +851,7 @@ Function aicGetDummies(Optional parameters = Null, Optional input_data = Null, O
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicGetDummies = "#FX"
         Exit Function
@@ -489,7 +876,8 @@ Function aicGetDummies(Optional parameters = Null, Optional input_data = Null, O
 
     If TypeOf input_data Is range Then
         'If HasRangeErrors(input_data) Then GoTo valueError
-        pb.StoreRange "parameters.input_data", input_data
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
         input_data = "@AICELLS-RANGE@"
     ElseIf IsArray(input_data) Then
         pb.StoreArray "parameters.input_data", input_data
@@ -498,7 +886,8 @@ Function aicGetDummies(Optional parameters = Null, Optional input_data = Null, O
 
     If TypeOf selected_columns Is range Then
         'If HasRangeErrors(selected_columns) Then GoTo valueError
-        pb.StoreRange "parameters.selected_columns", selected_columns
+        'pb.StoreRange "parameters.selected_columns", selected_columns
+        If ProcessParameterRanges2(pb, selected_columns, "parameters.selected_columns") = False Then GoTo valueError        
         selected_columns = "@AICELLS-RANGE@"
     ElseIf IsArray(selected_columns) Then
         pb.StoreArray "parameters.selected_columns", selected_columns
@@ -521,13 +910,14 @@ Function aicGetDummies(Optional parameters = Null, Optional input_data = Null, O
     End If
 
     pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
         Array("parameters", parameters), _
         Array("input_data", input_data), _
         Array("selected_columns", selected_columns), _
         Array("full_table", full_table), _
         Array("column_header", column_header), _
         Array("transpose", transpose)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -562,6 +952,7 @@ Function aicHelloWorld():
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicHelloWorld = "#FX"
         Exit Function
@@ -579,7 +970,7 @@ Function aicHelloWorld():
     Call LogUDFCall("aicHelloWorld", Application.Caller)    
 
 
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -616,6 +1007,7 @@ Function aicIsEmptyCell(Optional parameters = Null, Optional input_data = Null):
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicIsEmptyCell = "#FX"
         Exit Function
@@ -640,7 +1032,8 @@ Function aicIsEmptyCell(Optional parameters = Null, Optional input_data = Null):
 
     If TypeOf input_data Is range Then
         'If HasRangeErrors(input_data) Then GoTo valueError
-        pb.StoreRange "parameters.input_data", input_data
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
         input_data = "@AICELLS-RANGE@"
     ElseIf IsArray(input_data) Then
         pb.StoreArray "parameters.input_data", input_data
@@ -648,9 +1041,10 @@ Function aicIsEmptyCell(Optional parameters = Null, Optional input_data = Null):
     End If
 
     pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
         Array("parameters", parameters), _
         Array("input_data", input_data)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -665,6 +1059,777 @@ failed:
     Exit Function
 valueError:
     aicIsEmptyCell = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicLoadFromDataSource
+
+Private Sub aicLoadFromDataSource_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 5)
+    
+    description = ""
+    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key-value pairs."
+    argumentDescriptions(2) = ""
+    argumentDescriptions(3) = "is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE."
+    argumentDescriptions(4) = "is a logical value: to display row headers =TRUE or empty cell; to hide row headers = FALSE."
+    argumentDescriptions(5) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicLoadFromDataSource", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicLoadFromDataSource(Optional parameters = Null, Optional data_source = Null, Optional display_column_headers = Null, Optional display_row_headers = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicLoadFromDataSource = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicLoadFromDataSource"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicLoadFromDataSource", Application.Caller)    
+
+    If TypeOf parameters Is range Then
+        'If HasRangeErrors(parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
+        parameters = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf data_source Is range Then
+        'If HasRangeErrors(data_source) Then GoTo valueError
+        'pb.StoreRange "parameters.data_source", data_source
+        If ProcessParameterRanges2(pb, data_source, "parameters.data_source") = False Then GoTo valueError        
+        data_source = "@AICELLS-RANGE@"
+    ElseIf IsArray(data_source) Then
+        pb.StoreArray "parameters.data_source", data_source
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf display_column_headers Is range Then
+        If display_column_headers.Count <> 1 Then: GoTo valueError
+        display_column_headers = display_column_headers.Value
+    End If
+
+    If TypeOf display_row_headers Is range Then
+        If display_row_headers.Count <> 1 Then: GoTo valueError
+        display_row_headers = display_row_headers.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("parameters", parameters), _
+        Array("data_source", data_source), _
+        Array("display_column_headers", display_column_headers), _
+        Array("display_row_headers", display_row_headers), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicLoadFromDataSource = CVErr(xlErrCalc)
+    Else
+        aicLoadFromDataSource = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicLoadFromDataSource = Err.Description
+    Exit Function
+valueError:
+    aicLoadFromDataSource = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicSaveToDataSource
+
+Private Sub aicSaveToDataSource_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 3)
+    
+    description = ""
+    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key-value pairs."
+    argumentDescriptions(2) = ""
+    argumentDescriptions(3) = "is a table or range with header."
+
+    Application.MacroOptions Macro:="aicSaveToDataSource", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicSaveToDataSource(Optional parameters = Null, Optional data_source = Null, Optional input_data = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicSaveToDataSource = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicSaveToDataSource"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicSaveToDataSource", Application.Caller)    
+
+    If TypeOf parameters Is range Then
+        'If HasRangeErrors(parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
+        parameters = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf data_source Is range Then
+        'If HasRangeErrors(data_source) Then GoTo valueError
+        'pb.StoreRange "parameters.data_source", data_source
+        If ProcessParameterRanges2(pb, data_source, "parameters.data_source") = False Then GoTo valueError        
+        data_source = "@AICELLS-RANGE@"
+    ElseIf IsArray(data_source) Then
+        pb.StoreArray "parameters.data_source", data_source
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf input_data Is range Then
+        'If HasRangeErrors(input_data) Then GoTo valueError
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
+        input_data = "@AICELLS-RANGE@"
+    ElseIf IsArray(input_data) Then
+        pb.StoreArray "parameters.input_data", input_data
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("parameters", parameters), _
+        Array("data_source", data_source), _
+        Array("input_data", input_data)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicSaveToDataSource = CVErr(xlErrCalc)
+    Else
+        aicSaveToDataSource = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicSaveToDataSource = Err.Description
+    Exit Function
+valueError:
+    aicSaveToDataSource = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicToolDescription
+
+Private Sub aicToolDescription_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 1)
+    
+    description = "Returns the description for a specific AIcells tool."
+    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
+
+    Application.MacroOptions Macro:="aicToolDescription", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicToolDescription(Optional AIcells_tool_name = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicToolDescription = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicToolDescription"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicToolDescription", Application.Caller)    
+
+    If TypeOf AIcells_tool_name Is range Then
+        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
+        AIcells_tool_name = AIcells_tool_name.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_tool_name", AIcells_tool_name)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicToolDescription = CVErr(xlErrCalc)
+    Else
+        aicToolDescription = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicToolDescription = Err.Description
+    Exit Function
+valueError:
+    aicToolDescription = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicToolList
+
+Private Sub aicToolList_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    
+    
+    description = "Lists the available AIcells tools. Enter the following formula in a cell: ""=aic.Tool()""."
+
+    Application.MacroOptions Macro:="aicToolList", description:=Description, Category:="AICells"
+End Sub
+
+Function aicToolList():
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicToolList = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicToolList"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicToolList", Application.Caller)    
+
+
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicToolList = CVErr(xlErrCalc)
+    Else
+        aicToolList = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicToolList = Err.Description
+    Exit Function
+valueError:
+    aicToolList = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicToolParameterDataTypes
+
+Private Sub aicToolParameterDataTypes_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 2)
+    
+    description = "Lists the parameter data types for a specific AIcells tool."
+    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
+    argumentDescriptions(2) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicToolParameterDataTypes", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicToolParameterDataTypes(Optional AIcells_tool_name = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicToolParameterDataTypes = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicToolParameterDataTypes"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicToolParameterDataTypes", Application.Caller)    
+
+    If TypeOf AIcells_tool_name Is range Then
+        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
+        AIcells_tool_name = AIcells_tool_name.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_tool_name", AIcells_tool_name), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicToolParameterDataTypes = CVErr(xlErrCalc)
+    Else
+        aicToolParameterDataTypes = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicToolParameterDataTypes = Err.Description
+    Exit Function
+valueError:
+    aicToolParameterDataTypes = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicToolParameterDefaultValues
+
+Private Sub aicToolParameterDefaultValues_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 2)
+    
+    description = "Lists the parameter default values for a specific AIcells tool."
+    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
+    argumentDescriptions(2) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicToolParameterDefaultValues", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicToolParameterDefaultValues(Optional AIcells_tool_name = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicToolParameterDefaultValues = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicToolParameterDefaultValues"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicToolParameterDefaultValues", Application.Caller)    
+
+    If TypeOf AIcells_tool_name Is range Then
+        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
+        AIcells_tool_name = AIcells_tool_name.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_tool_name", AIcells_tool_name), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicToolParameterDefaultValues = CVErr(xlErrCalc)
+    Else
+        aicToolParameterDefaultValues = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicToolParameterDefaultValues = Err.Description
+    Exit Function
+valueError:
+    aicToolParameterDefaultValues = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicToolParameterDescriptions
+
+Private Sub aicToolParameterDescriptions_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 2)
+    
+    description = "Lists the parameter descriptions for a specific AIcells tool."
+    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
+    argumentDescriptions(2) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicToolParameterDescriptions", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicToolParameterDescriptions(Optional AIcells_tool_name = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicToolParameterDescriptions = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicToolParameterDescriptions"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicToolParameterDescriptions", Application.Caller)    
+
+    If TypeOf AIcells_tool_name Is range Then
+        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
+        AIcells_tool_name = AIcells_tool_name.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_tool_name", AIcells_tool_name), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicToolParameterDescriptions = CVErr(xlErrCalc)
+    Else
+        aicToolParameterDescriptions = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicToolParameterDescriptions = Err.Description
+    Exit Function
+valueError:
+    aicToolParameterDescriptions = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicToolParameters
+
+Private Sub aicToolParameters_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 2)
+    
+    description = "Lists the parameters for a specific AIcells tool."
+    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
+    argumentDescriptions(2) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicToolParameters", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicToolParameters(Optional AIcells_tool_name = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicToolParameters = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicToolParameters"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicToolParameters", Application.Caller)    
+
+    If TypeOf AIcells_tool_name Is range Then
+        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
+        AIcells_tool_name = AIcells_tool_name.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("AIcells_tool_name", AIcells_tool_name), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicToolParameters = CVErr(xlErrCalc)
+    Else
+        aicToolParameters = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicToolParameters = Err.Description
+    Exit Function
+valueError:
+    aicToolParameters = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicCorrelationMatrix
+
+Private Sub aicCorrelationMatrix_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 8)
+    
+    description = "Returns the correlation matrix for the selected columns. Compute pairwise correlation of columns, excluding NA/null values."
+    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key-value pairs."
+    argumentDescriptions(2) = "is a table or range with header."
+    argumentDescriptions(3) = "is a list of selected column header names. For select all columns, leave it empty. These are the columns of the matrix."
+    argumentDescriptions(4) = "is a list of selected column header names. For select all columns, leave it empty. These are the rows of the matrix."
+    argumentDescriptions(5) = "is a logical value: to return original correlation coefficients leave it empty; to return the absolute values of correlation coefficients = TRUE."
+    argumentDescriptions(6) = "is a logical value: set it TRUE to display column headers"
+    argumentDescriptions(7) = "is a logical value: set it TRUE to display row headers"
+    argumentDescriptions(8) = "is a logical value: to transpose the results =TRUE"
+
+    Application.MacroOptions Macro:="aicCorrelationMatrix", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicCorrelationMatrix(Optional parameters = Null, Optional input_data = Null, Optional selected_columns_1 = Null, Optional selected_columns_2 = Null, Optional absolute_values = Null, Optional display_column_headers = Null, Optional display_row_headers = Null, Optional transpose = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicCorrelationMatrix = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicCorrelationMatrix"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicCorrelationMatrix", Application.Caller)    
+
+    If TypeOf parameters Is range Then
+        'If HasRangeErrors(parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
+        parameters = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf input_data Is range Then
+        'If HasRangeErrors(input_data) Then GoTo valueError
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
+        input_data = "@AICELLS-RANGE@"
+    ElseIf IsArray(input_data) Then
+        pb.StoreArray "parameters.input_data", input_data
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf selected_columns_1 Is range Then
+        'If HasRangeErrors(selected_columns_1) Then GoTo valueError
+        'pb.StoreRange "parameters.selected_columns_1", selected_columns_1
+        If ProcessParameterRanges2(pb, selected_columns_1, "parameters.selected_columns_1") = False Then GoTo valueError        
+        selected_columns_1 = "@AICELLS-RANGE@"
+    ElseIf IsArray(selected_columns_1) Then
+        pb.StoreArray "parameters.selected_columns_1", selected_columns_1
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf selected_columns_2 Is range Then
+        'If HasRangeErrors(selected_columns_2) Then GoTo valueError
+        'pb.StoreRange "parameters.selected_columns_2", selected_columns_2
+        If ProcessParameterRanges2(pb, selected_columns_2, "parameters.selected_columns_2") = False Then GoTo valueError        
+        selected_columns_2 = "@AICELLS-RANGE@"
+    ElseIf IsArray(selected_columns_2) Then
+        pb.StoreArray "parameters.selected_columns_2", selected_columns_2
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf absolute_values Is range Then
+        If absolute_values.Count <> 1 Then: GoTo valueError
+        absolute_values = absolute_values.Value
+    End If
+
+    If TypeOf display_column_headers Is range Then
+        If display_column_headers.Count <> 1 Then: GoTo valueError
+        display_column_headers = display_column_headers.Value
+    End If
+
+    If TypeOf display_row_headers Is range Then
+        If display_row_headers.Count <> 1 Then: GoTo valueError
+        display_row_headers = display_row_headers.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("parameters", parameters), _
+        Array("input_data", input_data), _
+        Array("selected_columns_1", selected_columns_1), _
+        Array("selected_columns_2", selected_columns_2), _
+        Array("absolute_values", absolute_values), _
+        Array("display_column_headers", display_column_headers), _
+        Array("display_row_headers", display_row_headers), _
+        Array("transpose", transpose)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicCorrelationMatrix = CVErr(xlErrCalc)
+    Else
+        aicCorrelationMatrix = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicCorrelationMatrix = Err.Description
+    Exit Function
+valueError:
+    aicCorrelationMatrix = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicRandom
+
+Private Sub aicRandom_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 3)
+    
+    description = "Random number generator"
+    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key value pairs."
+    argumentDescriptions(2) = ""
+    argumentDescriptions(3) = "is a 2 dimensional list of the model's parameter(s). The list contains key value pairs."
+
+    Application.MacroOptions Macro:="aicRandom", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicRandom(Optional parameters = Null, Optional tool_name = Null, Optional tool_parameters = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+    Application.Volatile
+
+    If (IsFXWindowOpen()) Then
+        'aicRandom = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicRandom"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicRandom", Application.Caller)    
+
+    If TypeOf parameters Is range Then
+        'If HasRangeErrors(parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
+        parameters = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf tool_name Is range Then
+        If tool_name.Count <> 1 Then: GoTo valueError
+        tool_name = tool_name.Value
+    End If
+
+    If TypeOf tool_parameters Is range Then
+        'If HasRangeErrors(tool_parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, tool_parameters, "parameters.tool_parameters") = False Then GoTo valueError
+        tool_parameters = "@AICELLS-RANGE@"
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("parameters", parameters), _
+        Array("tool_name", tool_name), _
+        Array("tool_parameters", tool_parameters)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicRandom = CVErr(xlErrCalc)
+    Else
+        aicRandom = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicRandom = Err.Description
+    Exit Function
+valueError:
+    aicRandom = CVErr(xlErrValue)
     Exit Function
 End Function
 
@@ -697,6 +1862,7 @@ Function aicSLModelMetrics(Optional parameters = Null, Optional AIcells_tool_nam
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicSLModelMetrics = "#FX"
         Exit Function
@@ -732,7 +1898,8 @@ Function aicSLModelMetrics(Optional parameters = Null, Optional AIcells_tool_nam
 
     If TypeOf input_data Is range Then
         'If HasRangeErrors(input_data) Then GoTo valueError
-        pb.StoreRange "parameters.input_data", input_data
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
         input_data = "@AICELLS-RANGE@"
     ElseIf IsArray(input_data) Then
         pb.StoreArray "parameters.input_data", input_data
@@ -746,7 +1913,8 @@ Function aicSLModelMetrics(Optional parameters = Null, Optional AIcells_tool_nam
 
     If TypeOf selected_features Is range Then
         'If HasRangeErrors(selected_features) Then GoTo valueError
-        pb.StoreRange "parameters.selected_features", selected_features
+        'pb.StoreRange "parameters.selected_features", selected_features
+        If ProcessParameterRanges2(pb, selected_features, "parameters.selected_features") = False Then GoTo valueError        
         selected_features = "@AICELLS-RANGE@"
     ElseIf IsArray(selected_features) Then
         pb.StoreArray "parameters.selected_features", selected_features
@@ -760,7 +1928,8 @@ Function aicSLModelMetrics(Optional parameters = Null, Optional AIcells_tool_nam
 
     If TypeOf selected_metrics Is range Then
         'If HasRangeErrors(selected_metrics) Then GoTo valueError
-        pb.StoreRange "parameters.selected_metrics", selected_metrics
+        'pb.StoreRange "parameters.selected_metrics", selected_metrics
+        If ProcessParameterRanges2(pb, selected_metrics, "parameters.selected_metrics") = False Then GoTo valueError        
         selected_metrics = "@AICELLS-RANGE@"
     ElseIf IsArray(selected_metrics) Then
         pb.StoreArray "parameters.selected_metrics", selected_metrics
@@ -788,6 +1957,7 @@ Function aicSLModelMetrics(Optional parameters = Null, Optional AIcells_tool_nam
     End If
 
     pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
         Array("parameters", parameters), _
         Array("AIcells_tool_name", AIcells_tool_name), _
         Array("tool_parameters", tool_parameters), _
@@ -800,7 +1970,7 @@ Function aicSLModelMetrics(Optional parameters = Null, Optional AIcells_tool_nam
         Array("display_column_headers", display_column_headers), _
         Array("transpose", transpose), _
         Array("seed", seed)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -815,6 +1985,161 @@ failed:
     Exit Function
 valueError:
     aicSLModelMetrics = CVErr(xlErrValue)
+    Exit Function
+End Function
+
+' aicSLModelMetricsCV
+
+Private Sub aicSLModelMetricsCV_MacroOptions()
+    Dim description As String
+    Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 12)
+    
+    description = "Returns score and metrics for evaluating the quality of a model’s predictions."
+    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key-value pairs."
+    argumentDescriptions(2) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
+    argumentDescriptions(3) = "is a 2 dimensional list of tool parameter(s). The list contains key-value pairs."
+    argumentDescriptions(4) = "is a table or range with header."
+    argumentDescriptions(5) = "is a selected column header name."
+    argumentDescriptions(6) = "is a list of selected column header names for model features. When it's Null or not defined, the model uses all columns except selected_target"
+    argumentDescriptions(7) = "Number of folds. Must be at least 2."
+    argumentDescriptions(8) = "list of metrics."
+    argumentDescriptions(9) = "TODO"
+    argumentDescriptions(10) = "is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE."
+    argumentDescriptions(11) = "is a logical value: to transpose the results =TRUE"
+    argumentDescriptions(12) = "Random seed"
+
+    Application.MacroOptions Macro:="aicSLModelMetricsCV", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
+End Sub
+
+Function aicSLModelMetricsCV(Optional parameters = Null, Optional AIcells_tool_name = Null, Optional tool_parameters = Null, Optional input_data = Null, Optional selected_target = Null, Optional selected_features = Null, Optional n_splits = Null, Optional selected_metrics = Null, Optional greater_is_better = Null, Optional display_column_headers = Null, Optional transpose = Null, Optional seed = Null):
+    Dim PyReturn
+    Dim PyParameters
+    Dim pb As New PyParameterBuilder
+    
+
+    If (IsFXWindowOpen()) Then
+        'aicSLModelMetricsCV = "#FX"
+        Exit Function
+    End If
+    
+    pb.Init "aicSLModelMetricsCV"
+        
+    If TypeOf Application.Caller Is range Then
+        DeleteErrorMessage Application.Caller
+        On Error GoTo failed
+    Else
+        GoTo valueError
+    End If
+    
+    Call LogUDFCall("aicSLModelMetricsCV", Application.Caller)    
+
+    If TypeOf parameters Is range Then
+        'If HasRangeErrors(parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
+        parameters = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf AIcells_tool_name Is range Then
+        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
+        AIcells_tool_name = AIcells_tool_name.Value
+    End If
+
+    If TypeOf tool_parameters Is range Then
+        'If HasRangeErrors(tool_parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, tool_parameters, "parameters.tool_parameters") = False Then GoTo valueError
+        tool_parameters = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf input_data Is range Then
+        'If HasRangeErrors(input_data) Then GoTo valueError
+        'pb.StoreRange "parameters.input_data", input_data
+        If ProcessParameterRanges2(pb, input_data, "parameters.input_data") = False Then GoTo valueError        
+        input_data = "@AICELLS-RANGE@"
+    ElseIf IsArray(input_data) Then
+        pb.StoreArray "parameters.input_data", input_data
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf selected_target Is range Then
+        If selected_target.Count <> 1 Then: GoTo valueError
+        selected_target = selected_target.Value
+    End If
+
+    If TypeOf selected_features Is range Then
+        'If HasRangeErrors(selected_features) Then GoTo valueError
+        'pb.StoreRange "parameters.selected_features", selected_features
+        If ProcessParameterRanges2(pb, selected_features, "parameters.selected_features") = False Then GoTo valueError        
+        selected_features = "@AICELLS-RANGE@"
+    ElseIf IsArray(selected_features) Then
+        pb.StoreArray "parameters.selected_features", selected_features
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf n_splits Is range Then
+        If n_splits.Count <> 1 Then: GoTo valueError
+        n_splits = n_splits.Value
+    End If
+
+    If TypeOf selected_metrics Is range Then
+        'If HasRangeErrors(selected_metrics) Then GoTo valueError
+        'pb.StoreRange "parameters.selected_metrics", selected_metrics
+        If ProcessParameterRanges2(pb, selected_metrics, "parameters.selected_metrics") = False Then GoTo valueError        
+        selected_metrics = "@AICELLS-RANGE@"
+    ElseIf IsArray(selected_metrics) Then
+        pb.StoreArray "parameters.selected_metrics", selected_metrics
+        scorers = "@AICELLS-RANGE@"
+    End If
+
+    If TypeOf greater_is_better Is range Then
+        If greater_is_better.Count <> 1 Then: GoTo valueError
+        greater_is_better = greater_is_better.Value
+    End If
+
+    If TypeOf display_column_headers Is range Then
+        If display_column_headers.Count <> 1 Then: GoTo valueError
+        display_column_headers = display_column_headers.Value
+    End If
+
+    If TypeOf transpose Is range Then
+        If transpose.Count <> 1 Then: GoTo valueError
+        transpose = transpose.Value
+    End If
+
+    If TypeOf seed Is range Then
+        If seed.Count <> 1 Then: GoTo valueError
+        seed = seed.Value
+    End If
+
+    pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("parameters", parameters), _
+        Array("AIcells_tool_name", AIcells_tool_name), _
+        Array("tool_parameters", tool_parameters), _
+        Array("input_data", input_data), _
+        Array("selected_target", selected_target), _
+        Array("selected_features", selected_features), _
+        Array("n_splits", n_splits), _
+        Array("selected_metrics", selected_metrics), _
+        Array("greater_is_better", greater_is_better), _
+        Array("display_column_headers", display_column_headers), _
+        Array("transpose", transpose), _
+        Array("seed", seed)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    
+    If CheckIfError(PyReturn) Then
+        Call ShowErrors(PyReturn, Application.Caller)
+        aicSLModelMetricsCV = CVErr(xlErrCalc)
+    Else
+        aicSLModelMetricsCV = PyReturn
+    End If
+    
+    Exit Function
+failed:
+    aicSLModelMetricsCV = Err.Description
+    Exit Function
+valueError:
+    aicSLModelMetricsCV = CVErr(xlErrValue)
     Exit Function
 End Function
 
@@ -844,6 +2169,7 @@ Function aicSLModelPredict(Optional parameters = Null, Optional tool_name = Null
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
         'aicSLModelPredict = "#FX"
         Exit Function
@@ -879,7 +2205,8 @@ Function aicSLModelPredict(Optional parameters = Null, Optional tool_name = Null
 
     If TypeOf train_data Is range Then
         'If HasRangeErrors(train_data) Then GoTo valueError
-        pb.StoreRange "parameters.train_data", train_data
+        'pb.StoreRange "parameters.train_data", train_data
+        If ProcessParameterRanges2(pb, train_data, "parameters.train_data") = False Then GoTo valueError        
         train_data = "@AICELLS-RANGE@"
     ElseIf IsArray(train_data) Then
         pb.StoreArray "parameters.train_data", train_data
@@ -893,7 +2220,8 @@ Function aicSLModelPredict(Optional parameters = Null, Optional tool_name = Null
 
     If TypeOf selected_features Is range Then
         'If HasRangeErrors(selected_features) Then GoTo valueError
-        pb.StoreRange "parameters.selected_features", selected_features
+        'pb.StoreRange "parameters.selected_features", selected_features
+        If ProcessParameterRanges2(pb, selected_features, "parameters.selected_features") = False Then GoTo valueError        
         selected_features = "@AICELLS-RANGE@"
     ElseIf IsArray(selected_features) Then
         pb.StoreArray "parameters.selected_features", selected_features
@@ -902,7 +2230,8 @@ Function aicSLModelPredict(Optional parameters = Null, Optional tool_name = Null
 
     If TypeOf predict_data Is range Then
         'If HasRangeErrors(predict_data) Then GoTo valueError
-        pb.StoreRange "parameters.predict_data", predict_data
+        'pb.StoreRange "parameters.predict_data", predict_data
+        If ProcessParameterRanges2(pb, predict_data, "parameters.predict_data") = False Then GoTo valueError        
         predict_data = "@AICELLS-RANGE@"
     ElseIf IsArray(predict_data) Then
         pb.StoreArray "parameters.predict_data", predict_data
@@ -920,6 +2249,7 @@ Function aicSLModelPredict(Optional parameters = Null, Optional tool_name = Null
     End If
 
     pb.SetUdfArguments (Array( _
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
         Array("parameters", parameters), _
         Array("tool_name", tool_name), _
         Array("tool_parameters", tool_parameters), _
@@ -929,7 +2259,7 @@ Function aicSLModelPredict(Optional parameters = Null, Optional tool_name = Null
         Array("predict_data", predict_data), _
         Array("transpose", transpose), _
         Array("seed", seed)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
@@ -947,29 +2277,32 @@ valueError:
     Exit Function
 End Function
 
-' aicTool
+' aicSeabornGetExampleData
 
-Private Sub aicTool_MacroOptions()
+Private Sub aicSeabornGetExampleData_MacroOptions()
     Dim description As String
     Dim argumentDescriptions() As String
+    ReDim argumentDescriptions(1 To 2)
     
-    
-    description = "Lists the available AIcells tools. Enter the following formula in a cell: ""=aic.Tool()""."
+    description = "Load an example dataset from the Seaborn online repository (requires internet)."
+    argumentDescriptions(1) = "is a 2 dimensional list of parameter(s). The list contains key-value pairs."
+    argumentDescriptions(2) = "Name of the dataset"
 
-    Application.MacroOptions Macro:="aicTool", description:=Description, Category:="AICells"
+    Application.MacroOptions Macro:="aicSeabornGetExampleData", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
 End Sub
 
-Function aicTool():
+Function aicSeabornGetExampleData(Optional parameters = Null, Optional name = Null):
     Dim PyReturn
     Dim PyParameters
     Dim pb As New PyParameterBuilder
     
+
     If (IsFXWindowOpen()) Then
-        'aicTool = "#FX"
+        'aicSeabornGetExampleData = "#FX"
         Exit Function
     End If
     
-    pb.Init "aicTool"
+    pb.Init "aicSeabornGetExampleData"
         
     If TypeOf Application.Caller Is range Then
         DeleteErrorMessage Application.Caller
@@ -978,690 +2311,68 @@ Function aicTool():
         GoTo valueError
     End If
     
-    Call LogUDFCall("aicTool", Application.Caller)    
+    Call LogUDFCall("aicSeabornGetExampleData", Application.Caller)    
 
-
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicTool = CVErr(xlErrCalc)
-    Else
-        aicTool = PyReturn
+    If TypeOf parameters Is range Then
+        'If HasRangeErrors(parameters) Then GoTo valueError
+        If ProcessParameterRanges2(pb, parameters, "parameters") = False Then GoTo valueError
+        parameters = "@AICELLS-RANGE@"
     End If
-    
-    Exit Function
-failed:
-    aicTool = Err.Description
-    Exit Function
-valueError:
-    aicTool = CVErr(xlErrValue)
-    Exit Function
-End Function
 
-' aicToolDescription
-
-Private Sub aicToolDescription_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Returns the description for a specific AIcells tool."
-    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
-
-    Application.MacroOptions Macro:="aicToolDescription", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicToolDescription(Optional AIcells_tool_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicToolDescription = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicToolDescription"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicToolDescription", Application.Caller)    
-
-    If TypeOf AIcells_tool_name Is range Then
-        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
-        AIcells_tool_name = AIcells_tool_name.Value
+    If TypeOf name Is range Then
+        If name.Count <> 1 Then: GoTo valueError
+        name = name.Value
     End If
 
     pb.SetUdfArguments (Array( _
-        Array("AIcells_tool_name", AIcells_tool_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+        Array("_workbook_path", Application.Caller.Worksheet.Parent.FullName), _
+        Array("parameters", parameters), _
+        Array("name", name)))
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)
-        aicToolDescription = CVErr(xlErrCalc)
+        aicSeabornGetExampleData = CVErr(xlErrCalc)
     Else
-        aicToolDescription = PyReturn
+        aicSeabornGetExampleData = PyReturn
     End If
     
     Exit Function
 failed:
-    aicToolDescription = Err.Description
+    aicSeabornGetExampleData = Err.Description
     Exit Function
 valueError:
-    aicToolDescription = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicToolParameterDataTypes
-
-Private Sub aicToolParameterDataTypes_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameter data types for a specific AIcells tool."
-    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
-
-    Application.MacroOptions Macro:="aicToolParameterDataTypes", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicToolParameterDataTypes(Optional AIcells_tool_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicToolParameterDataTypes = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicToolParameterDataTypes"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicToolParameterDataTypes", Application.Caller)    
-
-    If TypeOf AIcells_tool_name Is range Then
-        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
-        AIcells_tool_name = AIcells_tool_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_tool_name", AIcells_tool_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicToolParameterDataTypes = CVErr(xlErrCalc)
-    Else
-        aicToolParameterDataTypes = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicToolParameterDataTypes = Err.Description
-    Exit Function
-valueError:
-    aicToolParameterDataTypes = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicToolParameterDefaultValues
-
-Private Sub aicToolParameterDefaultValues_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameter default values for a specific AIcells tool."
-    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
-
-    Application.MacroOptions Macro:="aicToolParameterDefaultValues", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicToolParameterDefaultValues(Optional AIcells_tool_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicToolParameterDefaultValues = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicToolParameterDefaultValues"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicToolParameterDefaultValues", Application.Caller)    
-
-    If TypeOf AIcells_tool_name Is range Then
-        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
-        AIcells_tool_name = AIcells_tool_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_tool_name", AIcells_tool_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicToolParameterDefaultValues = CVErr(xlErrCalc)
-    Else
-        aicToolParameterDefaultValues = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicToolParameterDefaultValues = Err.Description
-    Exit Function
-valueError:
-    aicToolParameterDefaultValues = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicToolParameterDescriptions
-
-Private Sub aicToolParameterDescriptions_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameter descriptions for a specific AIcells tool."
-    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
-
-    Application.MacroOptions Macro:="aicToolParameterDescriptions", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicToolParameterDescriptions(Optional AIcells_tool_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicToolParameterDescriptions = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicToolParameterDescriptions"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicToolParameterDescriptions", Application.Caller)    
-
-    If TypeOf AIcells_tool_name Is range Then
-        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
-        AIcells_tool_name = AIcells_tool_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_tool_name", AIcells_tool_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicToolParameterDescriptions = CVErr(xlErrCalc)
-    Else
-        aicToolParameterDescriptions = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicToolParameterDescriptions = Err.Description
-    Exit Function
-valueError:
-    aicToolParameterDescriptions = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicToolParameters
-
-Private Sub aicToolParameters_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameters for a specific AIcells tool."
-    argumentDescriptions(1) = "is the name of the AIcells tool. You can get the aic function list with the aicTool() function."
-
-    Application.MacroOptions Macro:="aicToolParameters", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicToolParameters(Optional AIcells_tool_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicToolParameters = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicToolParameters"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicToolParameters", Application.Caller)    
-
-    If TypeOf AIcells_tool_name Is range Then
-        If AIcells_tool_name.Count <> 1 Then: GoTo valueError
-        AIcells_tool_name = AIcells_tool_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_tool_name", AIcells_tool_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicToolParameters = CVErr(xlErrCalc)
-    Else
-        aicToolParameters = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicToolParameters = Err.Description
-    Exit Function
-valueError:
-    aicToolParameters = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicUDF
-
-Private Sub aicUDF_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    
-    
-    description = "Lists the available AIcells Excel functions (UDF). Enter the following formula in a cell: ""=aic.UDF()""."
-
-    Application.MacroOptions Macro:="aicUDF", description:=Description, Category:="AICells"
-End Sub
-
-Function aicUDF():
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicUDF = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicUDF"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicUDF", Application.Caller)    
-
-
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicUDF = CVErr(xlErrCalc)
-    Else
-        aicUDF = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicUDF = Err.Description
-    Exit Function
-valueError:
-    aicUDF = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicUDFDescription
-
-Private Sub aicUDFDescription_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Returns the description for a specific AIcells Excel function (UDF)."
-    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
-
-    Application.MacroOptions Macro:="aicUDFDescription", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicUDFDescription(Optional AIcells_UDF_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicUDFDescription = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicUDFDescription"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicUDFDescription", Application.Caller)    
-
-    If TypeOf AIcells_UDF_name Is range Then
-        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
-        AIcells_UDF_name = AIcells_UDF_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_UDF_name", AIcells_UDF_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicUDFDescription = CVErr(xlErrCalc)
-    Else
-        aicUDFDescription = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicUDFDescription = Err.Description
-    Exit Function
-valueError:
-    aicUDFDescription = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicUDFParameterDataTypes
-
-Private Sub aicUDFParameterDataTypes_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameter data types for a specific AIcells Excel function (UDF)."
-    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
-
-    Application.MacroOptions Macro:="aicUDFParameterDataTypes", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicUDFParameterDataTypes(Optional AIcells_UDF_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicUDFParameterDataTypes = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicUDFParameterDataTypes"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicUDFParameterDataTypes", Application.Caller)    
-
-    If TypeOf AIcells_UDF_name Is range Then
-        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
-        AIcells_UDF_name = AIcells_UDF_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_UDF_name", AIcells_UDF_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicUDFParameterDataTypes = CVErr(xlErrCalc)
-    Else
-        aicUDFParameterDataTypes = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicUDFParameterDataTypes = Err.Description
-    Exit Function
-valueError:
-    aicUDFParameterDataTypes = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicUDFParameterDefaultValues
-
-Private Sub aicUDFParameterDefaultValues_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameter default values for a specific AIcells Excel function (UDF)."
-    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
-
-    Application.MacroOptions Macro:="aicUDFParameterDefaultValues", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicUDFParameterDefaultValues(Optional AIcells_UDF_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicUDFParameterDefaultValues = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicUDFParameterDefaultValues"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicUDFParameterDefaultValues", Application.Caller)    
-
-    If TypeOf AIcells_UDF_name Is range Then
-        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
-        AIcells_UDF_name = AIcells_UDF_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_UDF_name", AIcells_UDF_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicUDFParameterDefaultValues = CVErr(xlErrCalc)
-    Else
-        aicUDFParameterDefaultValues = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicUDFParameterDefaultValues = Err.Description
-    Exit Function
-valueError:
-    aicUDFParameterDefaultValues = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicUDFParameterDescriptions
-
-Private Sub aicUDFParameterDescriptions_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameter descriptions for a specific AIcells Excel function (UDF)."
-    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
-
-    Application.MacroOptions Macro:="aicUDFParameterDescriptions", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicUDFParameterDescriptions(Optional AIcells_UDF_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicUDFParameterDescriptions = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicUDFParameterDescriptions"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicUDFParameterDescriptions", Application.Caller)    
-
-    If TypeOf AIcells_UDF_name Is range Then
-        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
-        AIcells_UDF_name = AIcells_UDF_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_UDF_name", AIcells_UDF_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicUDFParameterDescriptions = CVErr(xlErrCalc)
-    Else
-        aicUDFParameterDescriptions = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicUDFParameterDescriptions = Err.Description
-    Exit Function
-valueError:
-    aicUDFParameterDescriptions = CVErr(xlErrValue)
-    Exit Function
-End Function
-
-' aicUDFParameters
-
-Private Sub aicUDFParameters_MacroOptions()
-    Dim description As String
-    Dim argumentDescriptions() As String
-    ReDim argumentDescriptions(1 To 1)
-    
-    description = "Lists the parameters for a specific AIcells Excel function (UDF)."
-    argumentDescriptions(1) = "is the name of an AIcells Excel function (UDF). You can get the list of AIcells function names with the aicUDF() function."
-
-    Application.MacroOptions Macro:="aicUDFParameters", description:=Description, Category:="AICells", argumentDescriptions:=argumentDescriptions
-End Sub
-
-Function aicUDFParameters(Optional AIcells_UDF_name = Null):
-    Dim PyReturn
-    Dim PyParameters
-    Dim pb As New PyParameterBuilder
-    
-    If (IsFXWindowOpen()) Then
-        'aicUDFParameters = "#FX"
-        Exit Function
-    End If
-    
-    pb.Init "aicUDFParameters"
-        
-    If TypeOf Application.Caller Is range Then
-        DeleteErrorMessage Application.Caller
-        On Error GoTo failed
-    Else
-        GoTo valueError
-    End If
-    
-    Call LogUDFCall("aicUDFParameters", Application.Caller)    
-
-    If TypeOf AIcells_UDF_name Is range Then
-        If AIcells_UDF_name.Count <> 1 Then: GoTo valueError
-        AIcells_UDF_name = AIcells_UDF_name.Value
-    End If
-
-    pb.SetUdfArguments (Array( _
-        Array("AIcells_UDF_name", AIcells_UDF_name)))
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
-    
-    If CheckIfError(PyReturn) Then
-        Call ShowErrors(PyReturn, Application.Caller)
-        aicUDFParameters = CVErr(xlErrCalc)
-    Else
-        aicUDFParameters = PyReturn
-    End If
-    
-    Exit Function
-failed:
-    aicUDFParameters = Err.Description
-    Exit Function
-valueError:
-    aicUDFParameters = CVErr(xlErrValue)
+    aicSeabornGetExampleData = CVErr(xlErrValue)
     Exit Function
 End Function
 
 Public Sub SetMacroOptions()
-    Call aicCorrelationMatrix_MacroOptions
     Call aicCountEmptyCells_MacroOptions
+    Call aicDataCopy_MacroOptions
     Call aicDescribe_MacroOptions
     Call aicFillEmptyCells_MacroOptions
+    Call aicFunctionDescription_MacroOptions
+    Call aicFunctionList_MacroOptions
+    Call aicFunctionParameterDataTypes_MacroOptions
+    Call aicFunctionParameterDefaultValues_MacroOptions
+    Call aicFunctionParameterDescriptions_MacroOptions
+    Call aicFunctionParameters_MacroOptions
     Call aicGetDummies_MacroOptions
     Call aicHelloWorld_MacroOptions
     Call aicIsEmptyCell_MacroOptions
-    Call aicSLModelMetrics_MacroOptions
-    Call aicSLModelPredict_MacroOptions
-    Call aicTool_MacroOptions
+    Call aicLoadFromDataSource_MacroOptions
+    Call aicSaveToDataSource_MacroOptions
     Call aicToolDescription_MacroOptions
+    Call aicToolList_MacroOptions
     Call aicToolParameterDataTypes_MacroOptions
     Call aicToolParameterDefaultValues_MacroOptions
     Call aicToolParameterDescriptions_MacroOptions
     Call aicToolParameters_MacroOptions
-    Call aicUDF_MacroOptions
-    Call aicUDFDescription_MacroOptions
-    Call aicUDFParameterDataTypes_MacroOptions
-    Call aicUDFParameterDefaultValues_MacroOptions
-    Call aicUDFParameterDescriptions_MacroOptions
-    Call aicUDFParameters_MacroOptions
+    Call aicCorrelationMatrix_MacroOptions
+    Call aicRandom_MacroOptions
+    Call aicSLModelMetrics_MacroOptions
+    Call aicSLModelMetricsCV_MacroOptions
+    Call aicSLModelPredict_MacroOptions
+    Call aicSeabornGetExampleData_MacroOptions
 End Sub
 

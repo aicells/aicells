@@ -15,28 +15,42 @@ intellisenseXML = "<IntelliSense xmlns=\"http://schemas.excel-dna.net/intellisen
 generatedCode = ""
 processedUDFs = []
 
-directories = [
-#    'udf-1-draft',
-    'udf-2-alpha',
-    'udf-3-beta',
-    'udf-4-production',
-]
+dir = os.path.dirname(os.path.realpath(__file__))
+yamlFile = dir + '\\..\\aicells-config.yml'
+with open(yamlFile) as file:
+    aicConfig = yaml.load(file, Loader=yaml.FullLoader)
+
+# directories = [
+#     'core',
+#     'correlation',
+#     'random',
+#     'supervised-learning',
+#     'seaborn'
+# ]
+
+directories = aicConfig['plugins']
 
 filesDir = str(pathlib.Path(__file__).parent.absolute())
 
 fileList = []
 for d in directories:
-    fileList = fileList + glob.glob(filesDir + f"\\..\\aicells-python\\aicells_pkg\\aicells\\udf-server\\yml\\{d}\\*.yml")
+    fileList = fileList + glob.glob(filesDir + f"\\..\\aicells-python\\aicells_pkg\\aicells\\aicells-server\\plugin\\{d}\\function-yml\\*.yml")
 
 for yamlFile in fileList:
     className = os.path.basename(yamlFile).replace('.yml', '')
 
-    print(f"{className}")
 
     with open(yamlFile) as file:
         y = yaml.load(file, Loader=yaml.FullLoader)
 
+    if not ('udf' in y['tag']):
+        print(f"{className} [macro only]")
+        continue
+
+    print(f"{className}")
+
     typeMap = {
+        "data_source": "range",
         "string": "String",
         "set": "String",
         "parameters": "range",
@@ -116,13 +130,14 @@ for yamlFile in fileList:
                         rangeValidator += """
     If TypeOf {parameterName} Is range Then
         'If HasRangeErrors({parameterName}) Then GoTo valueError
-        pb.StoreRange "parameters.{parameterName}", {parameterName}
+        'pb.StoreRange "parameters.{parameterName}", {parameterName}
+        If ProcessParameterRanges2(pb, {parameterName}, "{namespace}") = False Then GoTo valueError        
         {parameterName} = "@AICELLS-RANGE@"
     ElseIf IsArray({parameterName}) Then
         pb.StoreArray "parameters.{parameterName}", {parameterName}
         scorers = "@AICELLS-RANGE@"
     End If
-""".format(parameterName=p["parameterName"])
+""".format(parameterName=p["parameterName"], namespace='parameters'+'.'+p["parameterName"])
                 else:
                     # not range type
                     rangeValidator += """
@@ -167,11 +182,16 @@ End Sub
 
     generatedCode += "Function " + y['pythonClassName'] + "(" + signature + "):"
 
+    volatile = "\n"
+    if 'volatile' in y:
+        if y['volatile']:
+            volatile = "\n    Application.Volatile\n"
+
     generatedCode += """
     Dim PyReturn
     Dim PyParameters
     Dim pb As New PyParameterBuilder
-    
+    {volatile}
     If (IsFXWindowOpen()) Then
         '{pythonClassName} = "#FX"
         Exit Function
@@ -187,17 +207,18 @@ End Sub
     End If
     
     Call LogUDFCall("{pythonClassName}", Application.Caller)    
-""".format(pythonClassName=y["pythonClassName"])
+""".format(pythonClassName=y["pythonClassName"], volatile=volatile)
 
     generatedCode += rangeValidator + "\n"
 
     if len(UDFArguments) != 0:
         generatedCode += "    pb.SetUdfArguments (Array( _\n"
+        generatedCode += "        Array(\"_workbook_path\", Application.Caller.Worksheet.Parent.FullName), _\n"
         generatedCode += ", _\n".join(UDFArguments)
         generatedCode += "))"
 
     generatedCode += """
-    PyReturn = Py.CallUDF("udf-server", "aicRaw", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
+    PyReturn = Py.CallUDF("aicells-server", "aicUDFRunner", pb.GetParameterArray(), ThisWorkbook, Application.Caller)
     
     If CheckIfError(PyReturn) Then
         Call ShowErrors(PyReturn, Application.Caller)

@@ -19,7 +19,6 @@ import sys
 
 __version__ = '0.0.1'
 
-# TODO: javitani
 def IsProcessAlreadyRunning(script):
     for process in psutil.process_iter():
         if process.name().startswith('python'):
@@ -28,7 +27,7 @@ def IsProcessAlreadyRunning(script):
                     return True
     return False
 
-def StartCOMServer(clsid='{506E67C3-55B5-48C3-A035-EED5DEEA7D6D}'):
+def StartCOMServer(clsid):
     if not IsProcessAlreadyRunning('aicells-server.py'):
         sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 

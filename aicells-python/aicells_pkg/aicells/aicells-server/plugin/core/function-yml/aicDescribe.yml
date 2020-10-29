@@ -1,0 +1,92 @@
+# AIcells (https://github.com/aicells/aicells) - Copyright 2020 László Siller, Gergely Szerovay
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+pythonClassName: aicDescribe
+tag: [udf, macro]
+description: |-
+ Returns a statistics for the selected columns.
+notes: |-
+helpLink:
+parameters:
+  - parameterName: parameters
+    UDFParameter: True
+    UDFParameterIndex: 1
+    type: [parameters]
+    description: |-
+      is a 2 dimensional list of parameter(s). The list contains key-value pairs.
+  - parameterName: input_data
+    UDFParameter: True
+    UDFParameterIndex: 2
+    columnHeader: True
+    type: [dataframe]
+    description: |-
+      is a table or range with header.
+  - parameterName: selected_columns
+    UDFParameter: True
+    UDFParameterIndex: 3
+    default: Null
+    type: [list, "Null"]
+    description: |-
+     is a list of selected column header names or empty. For select all columns, use empty. You can select adjacent cells only.
+  - parameterName: selected_statistics
+    UDFParameter: True
+    UDFParameterIndex: 3
+    default: Null
+    type: [list, "Null"]
+    description: |-
+     To display all statistics set this to empty, or range/array of selected statistics
+#      : 'data type', 'count', 'blank', 'unique', 'top', 'freq', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'
+#     is a list of selected column header names as selected statistics or empty. To use all columns = empty.
+  - parameterName: display_column_headers
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: True
+    type: [boolean]
+    description: |-
+     is a logical value: to display column headers =TRUE or empty cell; to hide column headers = FALSE.
+  - parameterName: display_row_headers
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: True
+    type: [boolean]
+    description: |-
+      is a logical value: to display row headers =TRUE or empty cell; to hide row headers = FALSE.
+  - parameterName: transpose
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: False
+    type: [boolean]
+    description: |-
+      is a logical value: to transpose the results =TRUE
+  - parameterName: percentile1
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: 0.25
+    type: [float,"Null"]
+    description: |-
+      is a number to use as the first percentile or empty cell for default value = 0.25.
+  - parameterName: percentile2
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: 0.5
+    type: [float,"Null"]
+    description: |-
+      is a number to use as the secnd percentile or empty cell for default value = 0.5.
+  - parameterName: percentile3
+    UDFParameter: True
+    UDFParameterIndex: -1
+    default: 0.75
+    type: [float,"Null"]
+    description: |-
+      is a number to use as the third percentile or empty cell for default value = 0.75.
