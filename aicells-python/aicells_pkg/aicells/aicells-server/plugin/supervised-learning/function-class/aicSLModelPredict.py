@@ -25,7 +25,7 @@ class aicSLModelPredict(AICFunction):
         a = self.ProcessArguments(arguments, 'parameters')
 
         try:
-            tool = self.factory.CreateInstance('tool.'+a['tool_name'].replace('.', '_'))
+            tool = self.factory.CreateInstance('tool-class.'+a['tool_name'].replace('.', '_'))
         except Exception as e:
             raise AICException.AICException("UNKNOWN_TOOL")
 
