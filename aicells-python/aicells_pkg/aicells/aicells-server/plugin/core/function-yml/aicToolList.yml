@@ -15,7 +15,7 @@
 pythonClassName: aicToolList
 tag: [udf]
 description: |-
-  Lists the available AIcells tools. Enter the following formula in a cell: "=aic.Tool()".
+  Lists the available AIcells tools. Enter the following formula in a cell: "=aic.ToolList()".
 notes: |-
 helpLink:
 parameters:

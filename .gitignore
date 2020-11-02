@@ -18,3 +18,4 @@ __pycache__
 /0gitignore/
 /aicells-temp/output.svg
 /aicells-excel-add-in/bas/UserFormFunctionRunner.log
+*.log

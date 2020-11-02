@@ -26,7 +26,7 @@ class aicFunctionList(AICFunction):
 
         filesDir = str(pathlib.Path(__file__).parent.absolute())
 
-        directories = ['core'] + self.config['plugins']
+        directories = self.config['plugins'] # ['core'] +
 
         fileList = []
         for d in directories:

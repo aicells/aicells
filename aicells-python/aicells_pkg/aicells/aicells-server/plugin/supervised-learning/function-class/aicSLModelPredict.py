@@ -20,17 +20,18 @@ import pandas
 import random
 import numpy
 
+
 class aicSLModelPredict(AICFunction):
     def Run(self, arguments):
         a = self.ProcessArguments(arguments, 'parameters')
 
         try:
-            tool = self.factory.CreateInstance('tool-class.'+a['tool_name'].replace('.', '_'))
+            tool = self.factory.CreateInstance('tool-class.' + a['tool_name'].replace('.', '_'))
         except Exception as e:
             raise AICException.AICException("UNKNOWN_TOOL")
 
         toolA = tool.ProcessArguments(arguments, 'parameters.tool_parameters')
-        
+
         model = tool.GetModel(toolA)
 
         trainData = a['train_data']
@@ -41,23 +42,28 @@ class aicSLModelPredict(AICFunction):
         if not (a['selected_features'] is None):
             for column in a['selected_features']:
                 if not isinstance(column, str):
-                    raise AICException.AICEParameterError("PARAMETER_INVALID_COLUMN", {"parameterName": 'selected_features'})
+                    raise AICException.AICEParameterError("PARAMETER_INVALID_COLUMN",
+                                                          {"parameterName": 'selected_features'})
                 if not (column in trainData.columns):
-                    raise AICException.AICEParameterError("PARAMETER_UNKNOWN_COLUMN", {"parameterName": 'selected_features', "columnName": column})
+                    raise AICException.AICEParameterError("PARAMETER_UNKNOWN_COLUMN",
+                                                          {"parameterName": 'selected_features', "columnName": column})
 
         # validate target column name
         if not isinstance(a['selected_target'], str):
             raise AICException.AICEParameterError("PARAMETER_INVALID_COLUMN", {"parameterName": 'selected_target'})
         if not (a['selected_target'] in trainData.columns):
             raise AICException.AICEParameterError("PARAMETER_UNKNOWN_COLUMN",
-                                              {"parameterName": 'selected_target', "columnName": a['selected_target']})
+                                                  {"parameterName": 'selected_target',
+                                                   "columnName": a['selected_target']})
 
         if not (a['selected_features'] is None):
             for column in a['selected_features']:
                 if not isinstance(column, str):
-                    raise AICException.AICEParameterError("PARAMETER_INVALID_COLUMN", {"parameterName": 'selected_features'})
+                    raise AICException.AICEParameterError("PARAMETER_INVALID_COLUMN",
+                                                          {"parameterName": 'selected_features'})
                 if not (column in predictData.columns):
-                    raise AICException.AICEParameterError("PARAMETER_UNKNOWN_COLUMN", {"parameterName": 'selected_features', "columnName": column})
+                    raise AICException.AICEParameterError("PARAMETER_UNKNOWN_COLUMN",
+                                                          {"parameterName": 'selected_features', "columnName": column})
 
         # validate target column name
         # if not isinstance(a['selected_target'], str):

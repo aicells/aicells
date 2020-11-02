@@ -26,16 +26,23 @@ class aicToolList(AICFunction):
 
         filesDir = str(pathlib.Path(__file__).parent.absolute())
 
-        directories = [
-#            'tool-1-draft',
-            'tool-2-alpha',
-            'tool-3-beta',
-            'tool-4-production',
-        ]
+#         directories = [
+# #            'tool-1-draft',
+#             'tool-2-alpha',
+#             'tool-3-beta',
+#             'tool-4-production',
+#         ]
+#
+#         fileList = []
+#         for d in directories:
+#             fileList = fileList + glob.glob(filesDir + f"\\..\\..\\yml\\{d}\\*.yml")
+
+        directories = self.config['plugins'] # ['core'] +
 
         fileList = []
         for d in directories:
-            fileList = fileList + glob.glob(filesDir + f"\\..\\..\\yml\\{d}\\*.yml")
+            fileList = fileList + glob.glob(
+                filesDir + f"\\..\\..\\{d}\\tool-yml\\*.yml")
 
         toolList = []
         for f in fileList:
